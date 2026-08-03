@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Badläget — Costa del Sol</title>
+<meta name="description" content="Se vågor, temperatur och uppskattad flaggfärg för stränderna i Torremolinos/Benalmádena, plus vädret hemma i Västerås.">
+<meta name="theme-color" content="#0B4F6C">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <span class="brand">🏖️ Badläget</span>
+    <span id="lastUpdated" class="last-updated">Hämtar data …</span>
+  </div>
+</header>
+
+<nav class="beach-picker" id="beachPicker" aria-label="Välj strand"></nav>
+
+<main>
+
+  <!-- HERO: flaggan -->
+  <section class="flag-hero" id="flagHero">
+    <div class="flag-pole">
+      <div class="flag-cloth" id="flagCloth">
+        <span class="flag-label" id="flagLabel">Laddar …</span>
+      </div>
+    </div>
+    <div class="hero-text">
+      <h1 id="heroBeachName">—</h1>
+      <p class="hero-sub" id="heroSub">Hämtar vågdata …</p>
+      <p class="flag-disclaimer">🧭 Uppskattad flagga utifrån väder &amp; vågor — inte den officiella livräddarflaggan. Se alltid flaggan på plats innan du badar.</p>
+    </div>
+  </section>
+
+  <!-- VÄRDEN -->
+  <section class="stat-grid" id="statGrid" aria-label="Aktuella värden">
+    <div class="stat-card" data-stat="wave">
+      <span class="stat-icon">🌊</span>
+      <span class="stat-value" id="statWave">–</span>
+      <span class="stat-label">Våghöjd</span>
+    </div>
+    <div class="stat-card" data-stat="water">
+      <span class="stat-icon">💧</span>
+      <span class="stat-value" id="statWaterTemp">–</span>
+      <span class="stat-label">Vattentemp</span>
+    </div>
+    <div class="stat-card" data-stat="air">
+      <span class="stat-icon">☀️</span>
+      <span class="stat-value" id="statAirTemp">–</span>
+      <span class="stat-label">Lufttemp</span>
+    </div>
+    <div class="stat-card" data-stat="wind">
+      <span class="stat-icon">💨</span>
+      <span class="stat-value" id="statWind">–</span>
+      <span class="stat-label">Vind</span>
+    </div>
+    <div class="stat-card" data-stat="uv">
+      <span class="stat-icon">🕶️</span>
+      <span class="stat-value" id="statUv">–</span>
+      <span class="stat-label">UV-index</span>
+    </div>
+    <div class="stat-card" data-stat="sun">
+      <span class="stat-icon">🌅</span>
+      <span class="stat-value" id="statSun">–</span>
+      <span class="stat-label">Sol upp/ner</span>
+    </div>
+  </section>
+
+  <!-- MANETER INFO -->
+  <section class="jelly-note">
+    <span class="jelly-icon">🪼</span>
+    <div>
+      <strong>Maneter</strong> går tyvärr inte att visa automatiskt här — det finns ingen öppen, gratis källa för det.
+      Kolla <a href="https://auladelmarmed.org/infomedusa/" target="_blank" rel="noopener">Infomedusa</a> (officiell app från Málagas provins) för aktuellt läge innan du badar.
+    </div>
+  </section>
+
+  <!-- PROGNOS -->
+  <section class="forecast">
+    <h2>Kommande dagar</h2>
+    <div class="forecast-row" id="forecastRow"></div>
+  </section>
+
+  <!-- VÄSTERÅS -->
+  <section class="home-card">
+    <div class="home-card-header">
+      <span class="home-icon">🇸🇪</span>
+      <h2>Hemma i Västerås</h2>
+    </div>
+    <div class="home-stats" id="homeStats">
+      <div class="home-stat">
+        <span class="stat-value" id="homeTemp">–</span>
+        <span class="stat-label">Lufttemp</span>
+      </div>
+      <div class="home-stat">
+        <span class="stat-value" id="homeWind">–</span>
+        <span class="stat-label">Vind</span>
+      </div>
+      <div class="home-stat">
+        <span class="stat-value" id="homeCond">–</span>
+        <span class="stat-label">Väder</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Data från <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>. Uppdateras varje gång sidan öppnas.</p>
+  <p class="made-by">Made by David Hefner</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
