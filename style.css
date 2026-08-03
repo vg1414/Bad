@@ -98,18 +98,26 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 }
 .flag-pole{
   position:relative;
-  width:8px;
+  width:clamp(140px,46vw,190px);
   height:150px;
-  background:linear-gradient(#d8c48a,#b89a5a);
-  border-radius:4px;
   flex:0 0 auto;
   margin-top:0.2rem;
+}
+.flag-pole::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:8px;
+  height:100%;
+  background:linear-gradient(#d8c48a,#b89a5a);
+  border-radius:4px;
 }
 .flag-cloth{
   position:absolute;
   top:6px;
   left:8px;
-  width:min(46vw,190px);
+  width:calc(100% - 8px);
   height:96px;
   background:var(--flag-green);
   border-radius:0 6px 6px 0;
@@ -304,4 +312,9 @@ footer p{margin:0.2rem 0;}
 
 @media (min-width:600px){
   .stat-grid{grid-template-columns:repeat(6,1fr);}
+}
+
+@media (max-width:480px){
+  .flag-hero{flex-direction:column;}
+  .flag-pole{width:min(62vw,220px);}
 }
