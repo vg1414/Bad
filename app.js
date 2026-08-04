@@ -489,6 +489,21 @@ function init() {
   selectBeach(savedId);
   loadHome();
   renderStores();
+
+  const refreshBtn = document.getElementById("refreshBtn");
+  if (refreshBtn) {
+    refreshBtn.addEventListener("click", async () => {
+      refreshBtn.classList.add("spinning");
+      refreshBtn.disabled = true;
+      const currentId = localStorage.getItem("badapp:lastBeach") || DEFAULT_BEACH_ID;
+      await Promise.all([
+        currentId === "stranden" ? loadStranden() : loadBeach(BEACHES.find((b) => b.id === currentId) ?? BEACHES[0]),
+        loadHome(),
+      ]);
+      refreshBtn.classList.remove("spinning");
+      refreshBtn.disabled = false;
+    });
+  }
 }
 
 init();
