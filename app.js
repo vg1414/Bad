@@ -123,6 +123,7 @@ function renderBeach(beach, marine, weather, cachedTs) {
   const waterTemp = marine.current?.sea_surface_temperature ?? null;
   const airTemp = weather.current?.temperature_2m ?? null;
   const feelsLike = weather.current?.apparent_temperature ?? null;
+  const maxTempToday = weather.daily?.temperature_2m_max?.[0] ?? null;
   const windKmh = weather.current?.wind_speed_10m ?? null;
   const uvToday = weather.daily?.uv_index_max?.[0] ?? null;
   const sunrise = weather.daily?.sunrise?.[0];
@@ -146,6 +147,8 @@ function renderBeach(beach, marine, weather, cachedTs) {
   document.getElementById("statAirTemp").textContent = airTemp != null ? `${Math.round(airTemp)}°` : "–";
   document.getElementById("statAirFeels").textContent =
     feelsLike != null ? `Känns som ${Math.round(feelsLike)}°` : "";
+  document.getElementById("statAirMax").textContent =
+    maxTempToday != null ? `Max idag ${Math.round(maxTempToday)}°` : "";
   document.getElementById("statWind").textContent = windKmh != null ? `${Math.round(windKmh)} km/h` : "–";
   document.getElementById("statUv").textContent = uvToday != null ? uvToday.toFixed(0) : "–";
   document.getElementById("statSun").textContent =
@@ -328,11 +331,14 @@ async function loadHome() {
 function renderHome(data) {
   const temp = data.current?.temperature_2m;
   const feelsLike = data.current?.apparent_temperature;
+  const maxTempToday = data.daily?.temperature_2m_max?.[0];
   const wind = data.current?.wind_speed_10m;
   const code = data.current?.weather_code;
   document.getElementById("homeTemp").textContent = temp != null ? `${Math.round(temp)}°` : "–";
   document.getElementById("homeFeels").textContent =
     feelsLike != null ? `Känns som ${Math.round(feelsLike)}°` : "";
+  document.getElementById("homeMax").textContent =
+    maxTempToday != null ? `Max idag ${Math.round(maxTempToday)}°` : "";
   document.getElementById("homeWind").textContent = wind != null ? `${Math.round(wind)} km/h` : "–";
   document.getElementById("homeCond").textContent = weatherEmoji(code);
 }
