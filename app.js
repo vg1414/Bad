@@ -10,13 +10,10 @@
 const BEACHES = [
   { id: "saltillo",     name: "Playa del Saltillo",    town: "Torremolinos",  lat: 36.6025, lon: -4.5135 },
   { id: "carihuela",    name: "La Carihuela",          town: "Torremolinos",  lat: 36.6076, lon: -4.5046 },
-  { id: "bajondillo",   name: "El Bajondillo",         town: "Torremolinos",  lat: 36.6249, lon: -4.4931 },
-  { id: "playamar",     name: "Playamar",              town: "Torremolinos",  lat: 36.6306, lon: -4.4887 },
-  { id: "alamos",       name: "Los Álamos",            town: "Torremolinos",  lat: 36.6349, lon: -4.4856 },
+  { id: "jose",         name: "Playa José",            town: "Torremolinos",  lat: 36.6018, lon: -4.5084 },
   { id: "fuentesalud",  name: "Fuente de la Salud",    town: "Benalmádena",   lat: 36.5990, lon: -4.5101 },
   { id: "santaana",     name: "Santa Ana",             town: "Benalmádena",   lat: 36.5921, lon: -4.5230 },
   { id: "malapesquera", name: "Malapesquera",          town: "Benalmádena",   lat: 36.5965, lon: -4.5171 },
-  { id: "bilbil",       name: "Bil-Bil",               town: "Benalmádena",   lat: 36.5882, lon: -4.5301 },
 ];
 
 // Hemma-koordinater: Västerås
