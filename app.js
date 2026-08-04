@@ -35,6 +35,7 @@ function marineUrl(lat, lon) {
 function weatherUrl(lat, lon) {
   return `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
     `&current=temperature_2m,wind_speed_10m,weather_code` +
+    `&hourly=temperature_2m,weather_code` +
     `&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,weather_code` +
     `&timezone=auto&forecast_days=4`;
 }
@@ -138,6 +139,9 @@ function renderBeach(beach, marine, weather, cachedTs) {
   document.getElementById("statSun").textContent =
     sunrise && sunset ? `${formatTime(sunrise)}–${formatTime(sunset)}` : "–";
 
+  // --- Timme-för-timme, resten av dagen ---
+  renderHourly(weather);
+
   // --- Prognos, 3 dagar framåt ---
   renderForecast(marine, weather);
 
@@ -171,6 +175,53 @@ function renderForecast(marine, weather) {
     `;
     row.appendChild(el);
   }
+}
+
+function renderHourly(weather) {
+  const row = document.getElementById("hourlyRow");
+  if (!row) return;
+  row.innerHTML = "";
+
+  const times = weather.hourly?.time ?? [];
+  const temps = weather.hourly?.temperature_2m ?? [];
+  const codes = weather.hourly?.weather_code ?? [];
+  const nowIso = weather.current?.time;
+  if (!nowIso || times.length === 0) return;
+
+  const today = nowIso.slice(0, 10);
+  const currentHour = Number(nowIso.slice(11, 13));
+
+  // Plocka ut timmarna som är kvar av idag (från nu till midnatt).
+  const todaysHours = [];
+  for (let i = 0; i < times.length; i++) {
+    const day = times[i].slice(0, 10);
+    const hour = Number(times[i].slice(11, 13));
+    if (day === today && hour >= currentHour) {
+      todaysHours.push({ time: times[i], temp: temps[i], code: codes[i] });
+    }
+  }
+  if (todaysHours.length === 0) return;
+
+  // Använd högsta/lägsta temp bland timmarna för att skala de små staplarna.
+  const tVals = todaysHours.map((h) => h.temp).filter((t) => t != null);
+  const tMax = Math.max(...tVals);
+  const tMin = Math.min(...tVals);
+  const span = Math.max(tMax - tMin, 1);
+
+  todaysHours.forEach((h, idx) => {
+    const hourLabel = idx === 0 ? "Nu" : `${h.time.slice(11, 13)}`;
+    const barPct = h.temp != null ? Math.round(((h.temp - tMin) / span) * 100) : 0;
+
+    const el = document.createElement("div");
+    el.className = "hour-card";
+    el.innerHTML = `
+      <span class="hour-label">${hourLabel}</span>
+      <span class="hour-icon">${weatherEmoji(h.code)}</span>
+      <span class="hour-bar-track"><span class="hour-bar-fill" style="height:${Math.max(barPct, 8)}%"></span></span>
+      <span class="hour-temp">${h.temp != null ? Math.round(h.temp) + "°" : "–"}</span>
+    `;
+    row.appendChild(el);
+  });
 }
 
 function formatTime(iso) {
