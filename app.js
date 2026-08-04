@@ -32,7 +32,7 @@ function marineUrl(lat, lon) {
   return `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}` +
     `&current=wave_height,sea_surface_temperature` +
     `&daily=wave_height_max` +
-    `&timezone=auto&forecast_days=5`;
+    `&timezone=auto&forecast_days=6`;
 }
 
 function weatherUrl(lat, lon) {
@@ -40,7 +40,7 @@ function weatherUrl(lat, lon) {
     `&current=temperature_2m,apparent_temperature,wind_speed_10m,weather_code` +
     `&hourly=temperature_2m,weather_code` +
     `&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,weather_code` +
-    `&timezone=auto&forecast_days=5`;
+    `&timezone=auto&forecast_days=6`;
 }
 
 // Enkel översättning av Open-Meteos "weather_code" till en emoji.
@@ -169,7 +169,7 @@ function renderForecast(marine, weather) {
   row.innerHTML = "";
   const days = weather.daily?.time ?? [];
   // dag 0 = idag, visa de tre kommande (index 1–3)
-  for (let i = 1; i < Math.min(5, days.length); i++) {
+  for (let i = 1; i < Math.min(6, days.length); i++) {
     const date = new Date(days[i]);
     const dayName = date.toLocaleDateString("sv-SE", { weekday: "short" });
     const tMax = weather.daily.temperature_2m_max?.[i];
