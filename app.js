@@ -343,24 +343,36 @@ function renderHome(data) {
 const STORES = [
   {
     name: "Dia (DIA Maxi)",
+    short: "DIA",
+    brandBg: "#EE1C25",
+    brandFg: "#ffffff",
     distance: "~160 m",
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Dia+Maxi+Torremolinos&query_place_id=ChIJQ3_Ol378cg0Rh5LY9ZUaSMc",
     hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "15:00" } },
   },
   {
     name: "Lidl",
+    short: "LIDL",
+    brandBg: "#0050AA",
+    brandFg: "#FFD100",
     distance: "~400 m",
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Lidl+Torremolinos&query_place_id=ChIJF6BlGHr8cg0RCrq8w6A52K8",
     hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "22:00" } },
   },
   {
     name: "Mercadona",
+    short: "Mercadona",
+    brandBg: "#00A65E",
+    brandFg: "#ffffff",
     distance: "~500 m",
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Mercadona+Torremolinos&query_place_id=ChIJXRr-ufD9cg0RRHg-ptLm7Po",
     hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "15:00" } },
   },
   {
     name: "Carrefour",
+    short: "Carrefour",
+    brandBg: "#004E9E",
+    brandFg: "#F36F21",
     distance: "~750 m",
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Carrefour+Costasol+Torremolinos&query_place_id=ChIJ_____5v7cg0RMVT4JM99Hnk",
     hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "10:00", close: "22:00" } },
@@ -426,7 +438,7 @@ function renderStores() {
     el.target = "_blank";
     el.rel = "noopener";
     el.innerHTML = `
-      <div class="store-name">${store.name}</div>
+      <div class="store-badge" style="background:${store.brandBg};color:${store.brandFg}">${store.short}</div>
       <div class="store-dist">${store.distance}</div>
       <div class="store-status ${statusClass}">${statusText}</div>
       <div class="store-hours">${hoursText}</div>

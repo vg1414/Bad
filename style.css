@@ -291,10 +291,15 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   transition:box-shadow 0.15s ease;
 }
 .store-card:active{box-shadow:0 1px 4px rgba(14,36,48,0.1);}
-.store-name{
-  font-weight:600;
-  font-size:0.92rem;
-  color:var(--sea-deep);
+.store-badge{
+  display:inline-block;
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:0.95rem;
+  letter-spacing:0.01em;
+  padding:0.3rem 0.6rem;
+  border-radius:8px;
+  margin-bottom:0.4rem;
 }
 .store-dist{
   font-size:0.72rem;
