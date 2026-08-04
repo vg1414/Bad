@@ -16,10 +16,16 @@ const BEACHES = [
   { id: "malapesquera", name: "Malapesquera",          town: "Benalmádena",   lat: 36.5965, lon: -4.5171 },
 ];
 
-// Hemma-koordinater: Västerås
+// Ordningen spelar roll: index 2 (Playa José) används som "representant"
+// för sådant vi inte medelvärdesberäknar (t.ex. timprognos), eftersom
+// den ligger mitt emellan de andra tre.
+const STRANDEN_MEMBER_IDS = ["saltillo", "carihuela", "jose", "fuentesalud"];
+
+// Det här är vad som visas i väljaren högst upp — "Stranden" (medelvärdet) + alla enskilda.
+const PICKER_ITEMS = [{ id: "stranden", name: "Stranden" }, ...BEACHES.map((b) => ({ id: b.id, name: b.name }))];
 const HOME = { name: "Västerås", lat: 59.6099, lon: 16.5448 };
 
-const DEFAULT_BEACH_ID = "carihuela";
+const DEFAULT_BEACH_ID = "stranden";
 
 // --- 2. Hjälpfunktioner för att bygga API-adresser ----------
 function marineUrl(lat, lon) {
@@ -101,9 +107,15 @@ async function loadBeach(beach) {
 }
 
 function setLoadingState(beach) {
-  document.getElementById("heroBeachName").textContent = `${beach.name}, ${beach.town}`;
+  document.getElementById("heroBeachName").textContent = beachTitle(beach);
+  const note = document.getElementById("strandenNote");
+  if (note) note.style.display = "none";
   document.getElementById("heroSub").textContent = "Hämtar aktuella värden …";
   document.getElementById("flagLabel").textContent = "…";
+}
+
+function beachTitle(beach) {
+  return beach.town ? `${beach.name}, ${beach.town}` : beach.name;
 }
 
 function renderBeach(beach, marine, weather, cachedTs) {
@@ -125,7 +137,7 @@ function renderBeach(beach, marine, weather, cachedTs) {
   document.getElementById("flagLabel").textContent =
     flag.level === "green" ? "Grön" : flag.level === "yellow" ? "Gul" : "Röd";
 
-  document.getElementById("heroBeachName").textContent = `${beach.name}, ${beach.town}`;
+  document.getElementById("heroBeachName").textContent = beachTitle(beach);
   document.getElementById("heroSub").textContent = flag.text;
 
   // --- Värdekorten ---
@@ -226,7 +238,80 @@ function formatTime(iso) {
   return new Date(iso).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 
-// --- 5. Hemma i Västerås -------------------------------------
+async function loadStranden() {
+  setLoadingState({ name: "Stranden", town: "medelvärde" });
+
+  try {
+    const members = STRANDEN_MEMBER_IDS.map((id) => BEACHES.find((b) => b.id === id));
+    const pairs = await Promise.all(
+      members.map((b) =>
+        Promise.all([
+          fetch(marineUrl(b.lat, b.lon)).then((r) => r.json()),
+          fetch(weatherUrl(b.lat, b.lon)).then((r) => r.json()),
+        ])
+      )
+    );
+    const marines = pairs.map((p) => p[0]);
+    const weathers = pairs.map((p) => p[1]);
+    const { marineSynth, weatherSynth } = averageStranden(marines, weathers);
+
+    renderBeach({ name: "Stranden", town: "" }, marineSynth, weatherSynth);
+    showStrandenNote();
+    localStorage.setItem("badapp:stranden", JSON.stringify({ marine: marineSynth, weather: weatherSynth, ts: Date.now() }));
+  } catch (err) {
+    console.error(err);
+    const cached = localStorage.getItem("badapp:stranden");
+    if (cached) {
+      const { marine, weather, ts } = JSON.parse(cached);
+      renderBeach({ name: "Stranden", town: "" }, marine, weather, ts);
+      showStrandenNote();
+    } else {
+      document.getElementById("heroSub").textContent = "Kunde inte hämta data just nu. Testa igen om en stund.";
+    }
+  }
+}
+
+// Slår ihop data från flera stränder till ett medelvärde. Aktuella värden
+// (våghöjd, temperaturer, vind, UV) medelvärdesberäknas rakt av. Timprognos
+// och soltider hämtas från Playa José, som ligger mitt emellan de andra tre.
+function averageStranden(marines, weathers) {
+  const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
+  const collect = (fn) => fn.map((x) => x).filter((v) => v != null);
+
+  const waveVals = marines.map((m) => m.current?.wave_height).filter((v) => v != null);
+  const waterVals = marines.map((m) => m.current?.sea_surface_temperature).filter((v) => v != null);
+  const airVals = weathers.map((w) => w.current?.temperature_2m).filter((v) => v != null);
+  const feelsVals = weathers.map((w) => w.current?.apparent_temperature).filter((v) => v != null);
+  const windVals = weathers.map((w) => w.current?.wind_speed_10m).filter((v) => v != null);
+  const uvVals = weathers.map((w) => w.daily?.uv_index_max?.[0]).filter((v) => v != null);
+
+  const repIdx = Math.min(2, weathers.length - 1); // Playa José
+  const rep = weathers[repIdx];
+  const repMarine = marines[repIdx];
+
+  const marineSynth = {
+    current: { wave_height: avg(waveVals), sea_surface_temperature: avg(waterVals) },
+    daily: repMarine.daily,
+  };
+  const weatherSynth = {
+    current: {
+      time: rep.current?.time,
+      temperature_2m: avg(airVals),
+      apparent_temperature: avg(feelsVals),
+      wind_speed_10m: avg(windVals),
+    },
+    daily: { ...rep.daily, uv_index_max: [avg(uvVals), ...(rep.daily?.uv_index_max?.slice(1) ?? [])] },
+    hourly: rep.hourly,
+  };
+  return { marineSynth, weatherSynth };
+}
+
+function showStrandenNote() {
+  const note = document.getElementById("strandenNote");
+  if (note) note.style.display = "block";
+}
+
+
 async function loadHome() {
   try {
     const res = await fetch(weatherUrl(HOME.lat, HOME.lon));
@@ -257,20 +342,25 @@ function renderHome(data) {
 function buildBeachPicker(activeId, onSelect) {
   const nav = document.getElementById("beachPicker");
   nav.innerHTML = "";
-  BEACHES.forEach((beach) => {
+  PICKER_ITEMS.forEach((item) => {
     const btn = document.createElement("button");
-    btn.className = "beach-chip" + (beach.id === activeId ? " active" : "");
-    btn.textContent = beach.name;
-    btn.addEventListener("click", () => onSelect(beach.id));
+    btn.className = "beach-chip" + (item.id === activeId ? " active" : "");
+    btn.textContent = item.name;
+    btn.addEventListener("click", () => onSelect(item.id));
     nav.appendChild(btn);
   });
 }
 
 // --- 7. Starta appen -------------------------------------------
 function selectBeach(beachId) {
+  localStorage.setItem("badapp:lastBeach", beachId);
+  buildBeachPicker(beachId, selectBeach);
+
+  if (beachId === "stranden") {
+    loadStranden();
+    return;
+  }
   const beach = BEACHES.find((b) => b.id === beachId) ?? BEACHES[0];
-  localStorage.setItem("badapp:lastBeach", beach.id);
-  buildBeachPicker(beach.id, selectBeach);
   loadBeach(beach);
 }
 

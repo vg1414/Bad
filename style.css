@@ -170,6 +170,15 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   line-height:1.4;
   margin:0;
 }
+.stranden-note{
+  font-size:0.7rem;
+  color:var(--ink-soft);
+  opacity:0.65;
+  max-width:38ch;
+  line-height:1.4;
+  margin:0.35rem 0 0;
+  font-style:italic;
+}
 
 /* ===== Stat grid ===== */
 .stat-grid{
