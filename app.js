@@ -205,24 +205,17 @@ function renderHourly(weather) {
     return;
   }
 
-  const tSlice = temps.slice(startIdx, startIdx + 12).filter((t) => t != null);
-  const tMax = Math.max(...tSlice);
-  const tMin = Math.min(...tSlice);
-  const span = Math.max(tMax - tMin, 1);
-
   hoursToShow.forEach((t, idx) => {
     const i = startIdx + idx;
     const temp = temps[i];
     const code = codes[i];
     const hourLabel = idx === 0 ? "Nu" : t.slice(11, 13);
-    const barPct = temp != null ? Math.round(((temp - tMin) / span) * 100) : 0;
 
     const el = document.createElement("div");
     el.className = "hour-card";
     el.innerHTML = `
       <span class="hour-label">${hourLabel}</span>
       <span class="hour-icon">${weatherEmoji(code)}</span>
-      <span class="hour-bar-track"><span class="hour-bar-fill" style="height:${Math.max(barPct, 8)}%"></span></span>
       <span class="hour-temp">${temp != null ? Math.round(temp) + "°" : "–"}</span>
     `;
     row.appendChild(el);
