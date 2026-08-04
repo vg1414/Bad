@@ -17,6 +17,10 @@ Jag (Claude) läser alltid denna filen först när vi fortsätter projektet.
 - [x] Krav insamlade, plan godkänd
 - [x] Hittat koordinater för stränderna
 - [x] Designplan (färger, typsnitt, layout) bestämd
+- [x] index.html, style.css, app.js, manifest.json, sw.js, ikoner byggda
+- [x] Pushat till GitHub: vg1414/Bad, live via GitHub Pages: https://vg1414.github.io/Bad/
+- [x] Fixad bugg: flaggan låg över texten på mobil
+- [x] Timprognos idag (temp + väderikon per timme, resten av dagen)
 
 ## Pågår / Kvar att göra
 - [ ] Bygga index.html + style.css + app.js
