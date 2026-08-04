@@ -202,6 +202,11 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   text-transform:uppercase;
   letter-spacing:0.04em;
 }
+.stat-feels{
+  font-size:0.68rem;
+  color:var(--ink-soft);
+  opacity:0.8;
+}
 
 /* ===== Jellyfish note ===== */
 .jelly-note{
@@ -346,6 +351,7 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 }
 .home-stat .stat-value{color:var(--sand);}
 .home-stat .stat-label{color:rgba(244,233,206,0.75);}
+.home-stat .stat-feels{color:rgba(244,233,206,0.65);}
 
 /* ===== Footer ===== */
 footer{

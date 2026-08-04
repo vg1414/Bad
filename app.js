@@ -34,7 +34,7 @@ function marineUrl(lat, lon) {
 
 function weatherUrl(lat, lon) {
   return `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-    `&current=temperature_2m,wind_speed_10m,weather_code` +
+    `&current=temperature_2m,apparent_temperature,wind_speed_10m,weather_code` +
     `&hourly=temperature_2m,weather_code` +
     `&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,weather_code` +
     `&timezone=auto&forecast_days=4`;
@@ -113,6 +113,7 @@ function renderBeach(beach, marine, weather, cachedTs) {
   const waveNow = marine.current?.wave_height ?? null;
   const waterTemp = marine.current?.sea_surface_temperature ?? null;
   const airTemp = weather.current?.temperature_2m ?? null;
+  const feelsLike = weather.current?.apparent_temperature ?? null;
   const windKmh = weather.current?.wind_speed_10m ?? null;
   const uvToday = weather.daily?.uv_index_max?.[0] ?? null;
   const sunrise = weather.daily?.sunrise?.[0];
@@ -134,6 +135,8 @@ function renderBeach(beach, marine, weather, cachedTs) {
   document.getElementById("statWave").textContent = waveNow != null ? `${waveNow.toFixed(1)} m` : "–";
   document.getElementById("statWaterTemp").textContent = waterTemp != null ? `${waterTemp.toFixed(1)}°` : "–";
   document.getElementById("statAirTemp").textContent = airTemp != null ? `${Math.round(airTemp)}°` : "–";
+  document.getElementById("statAirFeels").textContent =
+    feelsLike != null ? `Känns som ${Math.round(feelsLike)}°` : "";
   document.getElementById("statWind").textContent = windKmh != null ? `${Math.round(windKmh)} km/h` : "–";
   document.getElementById("statUv").textContent = uvToday != null ? uvToday.toFixed(0) : "–";
   document.getElementById("statSun").textContent =
@@ -243,9 +246,12 @@ async function loadHome() {
 
 function renderHome(data) {
   const temp = data.current?.temperature_2m;
+  const feelsLike = data.current?.apparent_temperature;
   const wind = data.current?.wind_speed_10m;
   const code = data.current?.weather_code;
   document.getElementById("homeTemp").textContent = temp != null ? `${Math.round(temp)}°` : "–";
+  document.getElementById("homeFeels").textContent =
+    feelsLike != null ? `Känns som ${Math.round(feelsLike)}°` : "";
   document.getElementById("homeWind").textContent = wind != null ? `${Math.round(wind)} km/h` : "–";
   document.getElementById("homeCond").textContent = weatherEmoji(code);
 }
