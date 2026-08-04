@@ -186,39 +186,44 @@ function renderHourly(weather) {
   const temps = weather.hourly?.temperature_2m ?? [];
   const codes = weather.hourly?.weather_code ?? [];
   const nowIso = weather.current?.time;
-  if (!nowIso || times.length === 0) return;
 
-  const today = nowIso.slice(0, 10);
-  const currentHour = Number(nowIso.slice(11, 13));
-
-  // Plocka ut timmarna som är kvar av idag (från nu till midnatt).
-  const todaysHours = [];
-  for (let i = 0; i < times.length; i++) {
-    const day = times[i].slice(0, 10);
-    const hour = Number(times[i].slice(11, 13));
-    if (day === today && hour >= currentHour) {
-      todaysHours.push({ time: times[i], temp: temps[i], code: codes[i] });
-    }
+  if (!nowIso || times.length === 0) {
+    row.innerHTML = '<p class="hourly-empty">Ingen timprognos tillgänglig just nu.</p>';
+    return;
   }
-  if (todaysHours.length === 0) return;
 
-  // Använd högsta/lägsta temp bland timmarna för att skala de små staplarna.
-  const tVals = todaysHours.map((h) => h.temp).filter((t) => t != null);
-  const tMax = Math.max(...tVals);
-  const tMin = Math.min(...tVals);
+  // Hitta index för nästa kommande timme. ISO-tider med fast bredd
+  // ("2026-08-05T08:00") går att jämföra som vanliga strängar —
+  // de sorteras i samma ordning som datumen faktiskt ligger i.
+  const nowPrefix = nowIso.slice(0, 13); // t.ex. "2026-08-05T08"
+  let startIdx = times.findIndex((t) => t >= nowPrefix);
+  if (startIdx === -1) startIdx = 0;
+
+  const hoursToShow = times.slice(startIdx, startIdx + 12);
+  if (hoursToShow.length === 0) {
+    row.innerHTML = '<p class="hourly-empty">Ingen timprognos tillgänglig just nu.</p>';
+    return;
+  }
+
+  const tSlice = temps.slice(startIdx, startIdx + 12).filter((t) => t != null);
+  const tMax = Math.max(...tSlice);
+  const tMin = Math.min(...tSlice);
   const span = Math.max(tMax - tMin, 1);
 
-  todaysHours.forEach((h, idx) => {
-    const hourLabel = idx === 0 ? "Nu" : `${h.time.slice(11, 13)}`;
-    const barPct = h.temp != null ? Math.round(((h.temp - tMin) / span) * 100) : 0;
+  hoursToShow.forEach((t, idx) => {
+    const i = startIdx + idx;
+    const temp = temps[i];
+    const code = codes[i];
+    const hourLabel = idx === 0 ? "Nu" : t.slice(11, 13);
+    const barPct = temp != null ? Math.round(((temp - tMin) / span) * 100) : 0;
 
     const el = document.createElement("div");
     el.className = "hour-card";
     el.innerHTML = `
       <span class="hour-label">${hourLabel}</span>
-      <span class="hour-icon">${weatherEmoji(h.code)}</span>
+      <span class="hour-icon">${weatherEmoji(code)}</span>
       <span class="hour-bar-track"><span class="hour-bar-fill" style="height:${Math.max(barPct, 8)}%"></span></span>
-      <span class="hour-temp">${h.temp != null ? Math.round(h.temp) + "°" : "–"}</span>
+      <span class="hour-temp">${temp != null ? Math.round(temp) + "°" : "–"}</span>
     `;
     row.appendChild(el);
   });

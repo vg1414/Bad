@@ -236,6 +236,11 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   scrollbar-width:none;
 }
 .hourly-row::-webkit-scrollbar{display:none;}
+.hourly-empty{
+  font-size:0.85rem;
+  color:var(--ink-soft);
+  margin:0;
+}
 .hour-card{
   flex:0 0 auto;
   width:58px;
