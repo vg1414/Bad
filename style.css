@@ -352,12 +352,17 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   margin:0 0 0.6rem;
 }
 .forecast-row{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
+  display:flex;
   gap:0.7rem;
+  overflow-x:auto;
+  padding-bottom:0.3rem;
   margin-bottom:1.8rem;
+  scrollbar-width:none;
 }
+.forecast-row::-webkit-scrollbar{display:none;}
 .forecast-day{
+  flex:0 0 auto;
+  width:84px;
   background:#fff;
   border-radius:var(--radius);
   padding:0.8rem 0.5rem;
