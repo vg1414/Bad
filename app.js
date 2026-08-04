@@ -192,8 +192,8 @@ function renderForecast(marine, weather) {
   }
 }
 
-function renderHourly(weather) {
-  const row = document.getElementById("hourlyRow");
+function renderHourly(weather, rowId = "hourlyRow") {
+  const row = document.getElementById(rowId);
   if (!row) return;
   row.innerHTML = "";
 
@@ -341,6 +341,7 @@ function renderHome(data) {
     maxTempToday != null ? `Max idag ${Math.round(maxTempToday)}°` : "";
   document.getElementById("homeWind").textContent = wind != null ? `${Math.round(wind)} km/h` : "–";
   document.getElementById("homeCond").textContent = weatherEmoji(code);
+  renderHourly(data, "homeHourlyRow");
 }
 
 // --- 6. Mataffärer nära C. Antonio García Fernández 7 -----------

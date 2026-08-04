@@ -427,6 +427,21 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 .home-stat .stat-value{color:var(--sand);}
 .home-stat .stat-label{color:rgba(244,233,206,0.75);}
 .home-stat .stat-feels{color:rgba(244,233,206,0.65);}
+.home-hourly{margin-top:0.9rem;}
+.home-hourly h3{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:0.95rem;
+  color:var(--sand);
+  margin:0 0 0.5rem;
+}
+.home-hourly .hourly-row{margin:0;}
+.home-hourly .hour-card{
+  background:rgba(244,233,206,0.1);
+  box-shadow:none;
+}
+.home-hourly .hour-label,
+.home-hourly .hour-temp{color:var(--sand);}
 
 /* ===== Footer ===== */
 footer{
