@@ -337,42 +337,7 @@ function renderHome(data) {
   document.getElementById("homeCond").textContent = weatherEmoji(code);
 }
 
-// --- 6. Strandväljaren (chips högst upp) ---------------------
-function buildBeachPicker(activeId, onSelect) {
-  const nav = document.getElementById("beachPicker");
-  nav.innerHTML = "";
-  PICKER_ITEMS.forEach((item) => {
-    const btn = document.createElement("button");
-    btn.className = "beach-chip" + (item.id === activeId ? " active" : "");
-    btn.textContent = item.name;
-    btn.addEventListener("click", () => onSelect(item.id));
-    nav.appendChild(btn);
-  });
-}
-
-// --- 7. Starta appen -------------------------------------------
-function selectBeach(beachId) {
-  localStorage.setItem("badapp:lastBeach", beachId);
-  buildBeachPicker(beachId, selectBeach);
-
-  if (beachId === "stranden") {
-    loadStranden();
-    return;
-  }
-  const beach = BEACHES.find((b) => b.id === beachId) ?? BEACHES[0];
-  loadBeach(beach);
-}
-
-function init() {
-  const savedId = localStorage.getItem("badapp:lastBeach") || DEFAULT_BEACH_ID;
-  selectBeach(savedId);
-  loadHome();
-  renderStores();
-}
-
-init();
-
-// --- 9. Mataffärer nära C. Antonio García Fernández 7 -----------
+// --- 6. Mataffärer nära C. Antonio García Fernández 7 -----------
 // Öppettider hämtade manuellt (Google Maps) — uppdatera själv om en
 // affär ändrar sina ordinarie tider.
 const STORES = [
@@ -471,7 +436,42 @@ function renderStores() {
   });
 }
 
-// --- 10. PWA: registrera service worker --------------------------
+// --- 7. Strandväljaren (chips högst upp) ---------------------
+function buildBeachPicker(activeId, onSelect) {
+  const nav = document.getElementById("beachPicker");
+  nav.innerHTML = "";
+  PICKER_ITEMS.forEach((item) => {
+    const btn = document.createElement("button");
+    btn.className = "beach-chip" + (item.id === activeId ? " active" : "");
+    btn.textContent = item.name;
+    btn.addEventListener("click", () => onSelect(item.id));
+    nav.appendChild(btn);
+  });
+}
+
+// --- 8. Starta appen -------------------------------------------
+function selectBeach(beachId) {
+  localStorage.setItem("badapp:lastBeach", beachId);
+  buildBeachPicker(beachId, selectBeach);
+
+  if (beachId === "stranden") {
+    loadStranden();
+    return;
+  }
+  const beach = BEACHES.find((b) => b.id === beachId) ?? BEACHES[0];
+  loadBeach(beach);
+}
+
+function init() {
+  const savedId = localStorage.getItem("badapp:lastBeach") || DEFAULT_BEACH_ID;
+  selectBeach(savedId);
+  loadHome();
+  renderStores();
+}
+
+init();
+
+// --- 9. PWA: registrera service worker --------------------------
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").catch((err) => console.warn("SW-registrering misslyckades", err));
