@@ -367,11 +367,103 @@ function init() {
   const savedId = localStorage.getItem("badapp:lastBeach") || DEFAULT_BEACH_ID;
   selectBeach(savedId);
   loadHome();
+  renderStores();
 }
 
 init();
 
-// --- 8. PWA: registrera service worker --------------------------
+// --- 9. Mataffärer nära C. Antonio García Fernández 7 -----------
+// Öppettider hämtade manuellt (Google Maps) — uppdatera själv om en
+// affär ändrar sina ordinarie tider.
+const STORES = [
+  {
+    name: "Dia (DIA Maxi)",
+    distance: "~160 m",
+    hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "15:00" } },
+  },
+  {
+    name: "Lidl",
+    distance: "~400 m",
+    hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "22:00" } },
+  },
+  {
+    name: "Mercadona",
+    distance: "~500 m",
+    hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "15:00" } },
+  },
+  {
+    name: "Carrefour",
+    distance: "~750 m",
+    hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "10:00", close: "22:00" } },
+  },
+];
+
+// De stora, nationellt obligatoriska stängningsdagarna i Spanien.
+// Dessa är alltid på samma datum, oavsett år, så vi kan kolla
+// månad+dag direkt utan att behöva en lista per år.
+const MANDATORY_CLOSED_DATES = [
+  [1, 1],   // Nyårsdagen
+  [1, 6],   // Trettondagen (Reyes)
+  [5, 1],   // Första maj
+  [12, 25], // Juldagen
+];
+
+function isMandatoryClosedToday(now) {
+  const m = now.getMonth() + 1;
+  const d = now.getDate();
+  return MANDATORY_CLOSED_DATES.some(([mm, dd]) => mm === m && dd === d);
+}
+
+function renderStores() {
+  const row = document.getElementById("storesRow");
+  if (!row) return;
+  row.innerHTML = "";
+
+  const now = new Date();
+  const dayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  const todayKey = dayKeys[now.getDay()];
+  const mandatoryClosed = isMandatoryClosedToday(now);
+
+  STORES.forEach((store) => {
+    const todayHours = store.hours[todayKey];
+    let statusClass = "closed";
+    let statusText = "Stängt idag";
+    let hoursText = "";
+
+    if (mandatoryClosed) {
+      statusText = "Stängt (helgdag)";
+    } else if (!todayHours) {
+      statusText = "Stängt idag";
+    } else {
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const [oh, om] = todayHours.open.split(":").map(Number);
+      const [ch, cm] = todayHours.close.split(":").map(Number);
+      const openMin = oh * 60 + om;
+      const closeMin = ch * 60 + cm;
+      if (nowMin >= openMin && nowMin < closeMin) {
+        statusClass = "open";
+        statusText = "Öppet nu";
+        hoursText = `till ${todayHours.close}`;
+      } else {
+        statusClass = "closed";
+        statusText = "Stängt nu";
+        hoursText = nowMin < openMin ? `öppnar ${todayHours.open}` : "öppnar imorgon";
+      }
+    }
+
+    const el = document.createElement("div");
+    el.className = "store-card";
+    el.innerHTML = `
+      <div class="store-name">${store.name}</div>
+      <div class="store-dist">${store.distance}</div>
+      <div class="store-status ${statusClass}">${statusText}</div>
+      <div class="store-hours">${hoursText}</div>
+    `;
+    row.appendChild(el);
+  });
+}
+
+// --- 10. PWA: registrera service worker --------------------------
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("sw.js").catch((err) => console.warn("SW-registrering misslyckades", err));
