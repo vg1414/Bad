@@ -466,6 +466,9 @@ function selectBeach(beachId) {
   localStorage.setItem("badapp:lastBeach", beachId);
   buildBeachPicker(beachId, selectBeach);
 
+  const storesSection = document.getElementById("storesSection");
+  if (storesSection) storesSection.style.display = beachId === "stranden" ? "block" : "none";
+
   if (beachId === "stranden") {
     loadStranden();
     return;
