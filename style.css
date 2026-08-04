@@ -212,6 +212,21 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   margin:0.35rem 0 0;
   font-style:italic;
 }
+.flag-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.5rem;
+  margin-top:0.5rem;
+}
+.flag-links a{
+  font-size:0.72rem;
+  font-weight:600;
+  color:var(--sea-deep);
+  text-decoration:none;
+  background:rgba(11,79,108,0.08);
+  padding:0.3rem 0.6rem;
+  border-radius:999px;
+}
 
 /* ===== Stat grid ===== */
 .stat-grid{

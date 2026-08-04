@@ -114,6 +114,36 @@ function setLoadingState(beach) {
   document.getElementById("flagLabel").textContent = "…";
 }
 
+// Riktiga källor för flagga/maneter (rapporterat av livräddare) och
+// live-webcams, så man kan dubbelkolla med egna ögon. oceanaria.es drivs
+// av Málagas universitet i samarbete med Junta de Andalucía.
+const OCEANARIA_TORREMOLINOS = "https://oceanaria.es/malaga/torremolinos/playas";
+const OCEANARIA_BENALMADENA = "https://oceanaria.es/malaga/benalmadena/playas";
+const FLAG_LINKS = {
+  saltillo: [{ label: "Riktig flagga & maneter", url: OCEANARIA_TORREMOLINOS }],
+  carihuela: [
+    { label: "Riktig flagga & maneter", url: OCEANARIA_TORREMOLINOS },
+    { label: "Live-webcam", url: "https://meteo365.es/livecams/torremolinos-bajondillo.php" },
+  ],
+  jose: [{ label: "Riktig flagga & maneter", url: OCEANARIA_TORREMOLINOS }],
+  fuentesalud: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
+  santaana: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
+  malapesquera: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
+  stranden: [
+    { label: "Riktig flagga, Torremolinos", url: OCEANARIA_TORREMOLINOS },
+    { label: "Riktig flagga, Benalmádena", url: OCEANARIA_BENALMADENA },
+  ],
+};
+
+function renderFlagLinks(beachId) {
+  const container = document.getElementById("flagLinks");
+  if (!container) return;
+  const links = FLAG_LINKS[beachId] ?? [];
+  container.innerHTML = links
+    .map((l) => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`)
+    .join("");
+}
+
 function beachTitle(beach) {
   return beach.town ? `${beach.name}, ${beach.town}` : beach.name;
 }
@@ -140,6 +170,7 @@ function renderBeach(beach, marine, weather, cachedTs) {
 
   document.getElementById("heroBeachName").textContent = beachTitle(beach);
   document.getElementById("heroSub").textContent = flag.text;
+  renderFlagLinks(beach.id);
 
   // --- Värdekorten ---
   document.getElementById("statWave").textContent = waveNow != null ? `${waveNow.toFixed(1)} m` : "–";
@@ -258,7 +289,7 @@ async function loadStranden() {
     const weathers = pairs.map((p) => p[1]);
     const { marineSynth, weatherSynth } = averageStranden(marines, weathers);
 
-    renderBeach({ name: "Stranden", town: "" }, marineSynth, weatherSynth);
+    renderBeach({ id: "stranden", name: "Stranden", town: "" }, marineSynth, weatherSynth);
     showStrandenNote();
     localStorage.setItem("badapp:stranden", JSON.stringify({ marine: marineSynth, weather: weatherSynth, ts: Date.now() }));
   } catch (err) {
@@ -266,7 +297,7 @@ async function loadStranden() {
     const cached = localStorage.getItem("badapp:stranden");
     if (cached) {
       const { marine, weather, ts } = JSON.parse(cached);
-      renderBeach({ name: "Stranden", town: "" }, marine, weather, ts);
+      renderBeach({ id: "stranden", name: "Stranden", town: "" }, marine, weather, ts);
       showStrandenNote();
     } else {
       document.getElementById("heroSub").textContent = "Kunde inte hämta data just nu. Testa igen om en stund.";
