@@ -276,7 +276,6 @@ async function loadStranden() {
 // och soltider hämtas från Playa José, som ligger mitt emellan de andra tre.
 function averageStranden(marines, weathers) {
   const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
-  const collect = (fn) => fn.map((x) => x).filter((v) => v != null);
 
   const waveVals = marines.map((m) => m.current?.wave_height).filter((v) => v != null);
   const waterVals = marines.map((m) => m.current?.sea_surface_temperature).filter((v) => v != null);
