@@ -362,7 +362,7 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 .forecast-row::-webkit-scrollbar{display:none;}
 .forecast-day{
   flex:0 0 auto;
-  width:84px;
+  width:96px;
   background:#fff;
   border-radius:var(--radius);
   padding:0.8rem 0.5rem;
@@ -380,8 +380,9 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   font-family:var(--font-mono);
   font-weight:600;
   color:var(--sea-deep);
-  font-size:1rem;
+  font-size:0.9rem;
   margin-top:0.25rem;
+  white-space:nowrap;
 }
 .forecast-day .day-wave{
   font-size:0.75rem;

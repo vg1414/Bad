@@ -185,7 +185,7 @@ function renderForecast(marine, weather) {
     el.innerHTML = `
       <div class="day-name">${dayName}</div>
       <div class="stat-icon">${weatherEmoji(code)}</div>
-      <div class="day-temp">${tMax != null ? Math.round(tMax) : "–"}° / ${tMin != null ? Math.round(tMin) : "–"}°</div>
+      <div class="day-temp">${tMax != null ? Math.round(tMax) : "–"}°/${tMin != null ? Math.round(tMin) : "–"}°</div>
       <div class="day-wave">🌊 ${wave != null ? wave.toFixed(1) + " m" : "–"}</div>
     `;
     row.appendChild(el);
