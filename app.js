@@ -168,6 +168,14 @@ function renderBeach(beach, marine, weather, cachedTs) {
   document.getElementById("flagLabel").textContent =
     flag.level === "green" ? "Grön" : flag.level === "yellow" ? "Gul" : "Röd";
 
+  // Vajar snabbare och kraftigare ju hårdare det blåser.
+  // ~0 km/h ger lugn vajning, ~50+ km/h ger stormig vajning.
+  const windForWave = windKmh ?? 10;
+  const waveIntensity = Math.min(Math.max(windForWave / 20, 0.6), 2.8);
+  const waveDuration = Math.min(Math.max(4.2 - windForWave / 15, 1.1), 4.2);
+  cloth.style.setProperty("--wave-intensity", waveIntensity.toFixed(2));
+  cloth.style.setProperty("--wave-duration", `${waveDuration.toFixed(2)}s`);
+
   document.getElementById("heroBeachName").textContent = beachTitle(beach);
   document.getElementById("heroSub").textContent = flag.text;
   renderFlagLinks(beach.id);

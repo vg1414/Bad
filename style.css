@@ -155,7 +155,7 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   background:var(--flag-green);
   border-radius:0 6px 6px 0;
   transform-origin:left center;
-  animation:wave 3.2s ease-in-out infinite;
+  animation:wave var(--wave-duration, 3.2s) ease-in-out infinite;
   display:flex;
   align-items:flex-end;
   padding:0.5rem 0.7rem;
@@ -174,9 +174,9 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 }
 @keyframes wave{
   0%,100%{transform:skewY(0deg) rotate(0deg);}
-  25%{transform:skewY(2.5deg) rotate(0.5deg);}
-  50%{transform:skewY(-1.5deg) rotate(-0.5deg);}
-  75%{transform:skewY(1.5deg) rotate(0.3deg);}
+  25%{transform:skewY(calc(2.5deg * var(--wave-intensity, 1))) rotate(calc(0.5deg * var(--wave-intensity, 1)));}
+  50%{transform:skewY(calc(-1.5deg * var(--wave-intensity, 1))) rotate(calc(-0.5deg * var(--wave-intensity, 1)));}
+  75%{transform:skewY(calc(1.5deg * var(--wave-intensity, 1))) rotate(calc(0.3deg * var(--wave-intensity, 1)));}
 }
 @media (prefers-reduced-motion: reduce){
   .flag-cloth{animation:none;}
