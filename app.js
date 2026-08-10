@@ -22,7 +22,7 @@ const BEACHES = [
 const STRANDEN_MEMBER_IDS = ["saltillo", "carihuela", "jose", "fuentesalud"];
 
 // Det här är vad som visas i väljaren högst upp — "Stranden" (medelvärdet) + alla enskilda.
-const PICKER_ITEMS = [{ id: "stranden", name: "Stranden" }, ...BEACHES.map((b) => ({ id: b.id, name: b.name }))];
+const PICKER_ITEMS = [{ id: "stranden", name: "La casa del Hefner" }, ...BEACHES.map((b) => ({ id: b.id, name: b.name }))];
 const HOME = { name: "Västerås", lat: 59.6099, lon: 16.5448 };
 
 const DEFAULT_BEACH_ID = "stranden";
@@ -282,7 +282,7 @@ function formatTime(iso) {
 }
 
 async function loadStranden() {
-  setLoadingState({ name: "Stranden", town: "medelvärde" });
+  setLoadingState({ name: "La casa del Hefner", town: "medelvärde" });
 
   try {
     const members = STRANDEN_MEMBER_IDS.map((id) => BEACHES.find((b) => b.id === id));
@@ -298,7 +298,7 @@ async function loadStranden() {
     const weathers = pairs.map((p) => p[1]);
     const { marineSynth, weatherSynth } = averageStranden(marines, weathers);
 
-    renderBeach({ id: "stranden", name: "Stranden", town: "" }, marineSynth, weatherSynth);
+    renderBeach({ id: "stranden", name: "La casa del Hefner", town: "" }, marineSynth, weatherSynth);
     showStrandenNote();
     localStorage.setItem("badapp:stranden", JSON.stringify({ marine: marineSynth, weather: weatherSynth, ts: Date.now() }));
   } catch (err) {
@@ -306,7 +306,7 @@ async function loadStranden() {
     const cached = localStorage.getItem("badapp:stranden");
     if (cached) {
       const { marine, weather, ts } = JSON.parse(cached);
-      renderBeach({ id: "stranden", name: "Stranden", town: "" }, marine, weather, ts);
+      renderBeach({ id: "stranden", name: "La casa del Hefner", town: "" }, marine, weather, ts);
       showStrandenNote();
     } else {
       document.getElementById("heroSub").textContent = "Kunde inte hämta data just nu. Testa igen om en stund.";
