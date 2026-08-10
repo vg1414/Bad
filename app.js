@@ -206,18 +206,19 @@ function renderBeach(beach, marine, weather, cachedTs) {
     `${prefix} ${new Date(stamp).toLocaleString("sv-SE", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })}`;
 }
 
-function renderForecast(marine, weather) {
-  const row = document.getElementById("forecastRow");
+function renderForecast(marine, weather, rowId = "forecastRow") {
+  const row = document.getElementById(rowId);
+  if (!row) return;
   row.innerHTML = "";
   const days = weather.daily?.time ?? [];
-  // dag 0 = idag, visa de tre kommande (index 1–3)
+  // dag 0 = idag, visa de fem kommande (index 1–5)
   for (let i = 1; i < Math.min(6, days.length); i++) {
     const date = new Date(days[i]);
     const dayName = date.toLocaleDateString("sv-SE", { weekday: "short" });
     const tMax = weather.daily.temperature_2m_max?.[i];
     const tMin = weather.daily.temperature_2m_min?.[i];
     const code = weather.daily.weather_code?.[i];
-    const wave = marine.daily?.wave_height_max?.[i];
+    const wave = marine?.daily?.wave_height_max?.[i];
 
     const el = document.createElement("div");
     el.className = "forecast-day";
@@ -225,7 +226,7 @@ function renderForecast(marine, weather) {
       <div class="day-name">${dayName}</div>
       <div class="stat-icon">${weatherEmoji(code)}</div>
       <div class="day-temp">${tMax != null ? Math.round(tMax) : "–"}°/${tMin != null ? Math.round(tMin) : "–"}°</div>
-      <div class="day-wave">🌊 ${wave != null ? wave.toFixed(1) + " m" : "–"}</div>
+      ${marine ? `<div class="day-wave">🌊 ${wave != null ? wave.toFixed(1) + " m" : "–"}</div>` : ""}
     `;
     row.appendChild(el);
   }
@@ -381,6 +382,7 @@ function renderHome(data) {
   document.getElementById("homeWind").textContent = wind != null ? `${Math.round(wind)} km/h` : "–";
   document.getElementById("homeCond").textContent = weatherEmoji(code);
   renderHourly(data, "homeHourlyRow");
+  renderForecast(null, data, "homeForecastRow");
 }
 
 // --- 6. Mataffärer nära C. Antonio García Fernández 7 -----------

@@ -491,6 +491,13 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 }
 .home-hourly .hour-label,
 .home-hourly .hour-temp{color:var(--sand);}
+.home-hourly .forecast-row{margin:0;}
+.home-hourly .forecast-day{
+  background:rgba(244,233,206,0.1);
+  box-shadow:none;
+}
+.home-hourly .forecast-day .day-name,
+.home-hourly .forecast-day .day-temp{color:var(--sand);}
 
 /* ===== Footer ===== */
 footer{
