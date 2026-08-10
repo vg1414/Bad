@@ -47,7 +47,7 @@
       <p class="hero-sub" id="heroSub">Hämtar vågdata …</p>
       <p class="flag-disclaimer">🧭 Uppskattad flagga utifrån väder &amp; vågor — inte den officiella livräddarflaggan. Se alltid flaggan på plats innan du badar.</p>
       <div class="flag-links" id="flagLinks"></div>
-      <p class="stranden-note" id="strandenNote" style="display:none">Medelvärde av Playa del Saltillo, La Carihuela, Playa José och Fuente de la Salud.</p>
+      <p class="hefner-note" id="hefnerNote" style="display:none">Medelvärde av Playa del Saltillo, La Carihuela, Playa José och Fuente de la Salud.</p>
     </div>
   </section>
 
@@ -110,16 +110,18 @@
   <section class="stores" id="trainSection">
     <h2>Tåg från El Pinillo</h2>
     <div class="train-row">
-      <a class="train-card" href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=M%C3%A1laga-Centro+Alameda&destination_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&travelmode=transit" target="_blank" rel="noopener">
+      <div class="train-card">
         <div class="train-dir">🚆 Mot Málaga</div>
-        <div class="train-hint">Se nästa avgång ↗</div>
-      </a>
-      <a class="train-card" href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Fuengirola&destination_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&travelmode=transit" target="_blank" rel="noopener">
+        <div class="train-times" id="trainMalaga"></div>
+        <a class="train-hint" href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=M%C3%A1laga-Centro+Alameda&destination_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&travelmode=transit" target="_blank" rel="noopener">Kolla på kartan ↗</a>
+      </div>
+      <div class="train-card">
         <div class="train-dir">🚆 Mot Fuengirola</div>
-        <div class="train-hint">Se nästa avgång ↗</div>
-      </a>
+        <div class="train-times" id="trainFuengirola"></div>
+        <a class="train-hint" href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Fuengirola&destination_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&travelmode=transit" target="_blank" rel="noopener">Kolla på kartan ↗</a>
+      </div>
     </div>
-    <p class="stores-note">Öppnar Google Maps med riktiga, aktuella avgångstider (tåg går ca var 20:e minut).</p>
+    <p class="stores-note">Ungefärliga tider räknade utifrån linjens ordinarie ~20-minutersfrekvens, inte en live-uppkoppling mot tåget.</p>
   </section>
 
   <!-- VÄSTERÅS -->

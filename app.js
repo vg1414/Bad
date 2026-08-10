@@ -19,13 +19,13 @@ const BEACHES = [
 // Ordningen spelar roll: index 2 (Playa José) används som "representant"
 // för sådant vi inte medelvärdesberäknar (t.ex. timprognos), eftersom
 // den ligger mitt emellan de andra tre.
-const STRANDEN_MEMBER_IDS = ["saltillo", "carihuela", "jose", "fuentesalud"];
+const HEFNER_MEMBER_IDS = ["saltillo", "carihuela", "jose", "fuentesalud"];
 
-// Det här är vad som visas i väljaren högst upp — "Stranden" (medelvärdet) + alla enskilda.
-const PICKER_ITEMS = [{ id: "stranden", name: "La casa del Hefner" }, ...BEACHES.map((b) => ({ id: b.id, name: b.name }))];
+// Det här är vad som visas i väljaren högst upp — "La casa del Hefner" (medelvärdet) + alla enskilda.
+const PICKER_ITEMS = [{ id: "hefner", name: "La casa del Hefner" }, ...BEACHES.map((b) => ({ id: b.id, name: b.name }))];
 const HOME = { name: "Västerås", lat: 59.6099, lon: 16.5448 };
 
-const DEFAULT_BEACH_ID = "stranden";
+const DEFAULT_BEACH_ID = "hefner";
 
 // --- 2. Hjälpfunktioner för att bygga API-adresser ----------
 function marineUrl(lat, lon) {
@@ -108,7 +108,7 @@ async function loadBeach(beach) {
 
 function setLoadingState(beach) {
   document.getElementById("heroBeachName").textContent = beachTitle(beach);
-  const note = document.getElementById("strandenNote");
+  const note = document.getElementById("hefnerNote");
   if (note) note.style.display = "none";
   document.getElementById("heroSub").textContent = "Hämtar aktuella värden …";
   document.getElementById("flagLabel").textContent = "…";
@@ -129,7 +129,7 @@ const FLAG_LINKS = {
   fuentesalud: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
   santaana: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
   malapesquera: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
-  stranden: [
+  hefner: [
     { label: "Riktig flagga, Torremolinos", url: OCEANARIA_TORREMOLINOS },
     { label: "Riktig flagga, Benalmádena", url: OCEANARIA_BENALMADENA },
   ],
@@ -142,6 +142,50 @@ function renderFlagLinks(beachId) {
   container.innerHTML = links
     .map((l) => `<a href="${l.url}" target="_blank" rel="noopener">${l.label} ↗</a>`)
     .join("");
+}
+
+// --- Tåg från El Pinillo (linje C1) -----------------------------
+// Cercanías har ingen öppen realtids-API (bara schemalagd data), så
+// vi räknar ut ungefärliga avgångar utifrån linjens ordinarie
+// frekvens (~20 min) och tidsspann, inte en live-koppling till tåget.
+const TRAIN_INTERVAL_MIN = 20;
+const TRAIN_SERVICE_START_MIN = 6 * 60; // 06:00
+const TRAIN_SERVICE_END_MIN = 24 * 60 + 30; // 00:30
+// Minutoffset inom varje 20-minutersintervall när tåget passerar
+// El Pinillo i respektive riktning (uppskattat från Renfes tidtabell).
+const TRAIN_OFFSET_MALAGA = 7;
+const TRAIN_OFFSET_FUENGIROLA = 17;
+
+function nextTrainTimes(offsetMin, count = 2) {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const results = [];
+  let t = Math.ceil((nowMin - offsetMin) / TRAIN_INTERVAL_MIN) * TRAIN_INTERVAL_MIN + offsetMin;
+  if (t < nowMin) t += TRAIN_INTERVAL_MIN;
+  while (results.length < count && t < TRAIN_SERVICE_END_MIN + TRAIN_INTERVAL_MIN) {
+    if (t >= TRAIN_SERVICE_START_MIN) {
+      const h = Math.floor(t / 60) % 24;
+      const m = t % 60;
+      const clock = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+      const inMin = t - nowMin;
+      results.push({ clock, inMin });
+    }
+    t += TRAIN_INTERVAL_MIN;
+  }
+  return results;
+}
+
+function renderTrains() {
+  const malagaEl = document.getElementById("trainMalaga");
+  const fuengirolaEl = document.getElementById("trainFuengirola");
+  if (!malagaEl || !fuengirolaEl) return;
+
+  const toHtml = (trains) =>
+    trains.map((t) => `<div class="train-time">${t.clock} <span>(om ${t.inMin} min)</span></div>`).join("") ||
+    `<div class="train-time">Ingen trafik just nu</div>`;
+
+  malagaEl.innerHTML = toHtml(nextTrainTimes(TRAIN_OFFSET_MALAGA));
+  fuengirolaEl.innerHTML = toHtml(nextTrainTimes(TRAIN_OFFSET_FUENGIROLA));
 }
 
 function beachTitle(beach) {
@@ -281,11 +325,11 @@ function formatTime(iso) {
   return new Date(iso).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 
-async function loadStranden() {
+async function loadHefner() {
   setLoadingState({ name: "La casa del Hefner", town: "medelvärde" });
 
   try {
-    const members = STRANDEN_MEMBER_IDS.map((id) => BEACHES.find((b) => b.id === id));
+    const members = HEFNER_MEMBER_IDS.map((id) => BEACHES.find((b) => b.id === id));
     const pairs = await Promise.all(
       members.map((b) =>
         Promise.all([
@@ -296,18 +340,18 @@ async function loadStranden() {
     );
     const marines = pairs.map((p) => p[0]);
     const weathers = pairs.map((p) => p[1]);
-    const { marineSynth, weatherSynth } = averageStranden(marines, weathers);
+    const { marineSynth, weatherSynth } = averageHefner(marines, weathers);
 
-    renderBeach({ id: "stranden", name: "La casa del Hefner", town: "" }, marineSynth, weatherSynth);
-    showStrandenNote();
-    localStorage.setItem("badapp:stranden", JSON.stringify({ marine: marineSynth, weather: weatherSynth, ts: Date.now() }));
+    renderBeach({ id: "hefner", name: "La casa del Hefner", town: "" }, marineSynth, weatherSynth);
+    showHefnerNote();
+    localStorage.setItem("badapp:hefner", JSON.stringify({ marine: marineSynth, weather: weatherSynth, ts: Date.now() }));
   } catch (err) {
     console.error(err);
-    const cached = localStorage.getItem("badapp:stranden");
+    const cached = localStorage.getItem("badapp:hefner");
     if (cached) {
       const { marine, weather, ts } = JSON.parse(cached);
-      renderBeach({ id: "stranden", name: "La casa del Hefner", town: "" }, marine, weather, ts);
-      showStrandenNote();
+      renderBeach({ id: "hefner", name: "La casa del Hefner", town: "" }, marine, weather, ts);
+      showHefnerNote();
     } else {
       document.getElementById("heroSub").textContent = "Kunde inte hämta data just nu. Testa igen om en stund.";
     }
@@ -317,7 +361,7 @@ async function loadStranden() {
 // Slår ihop data från flera stränder till ett medelvärde. Aktuella värden
 // (våghöjd, temperaturer, vind, UV) medelvärdesberäknas rakt av. Timprognos
 // och soltider hämtas från Playa José, som ligger mitt emellan de andra tre.
-function averageStranden(marines, weathers) {
+function averageHefner(marines, weathers) {
   const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
 
   const waveVals = marines.map((m) => m.current?.wave_height).filter((v) => v != null);
@@ -348,8 +392,8 @@ function averageStranden(marines, weathers) {
   return { marineSynth, weatherSynth };
 }
 
-function showStrandenNote() {
-  const note = document.getElementById("strandenNote");
+function showHefnerNote() {
+  const note = document.getElementById("hefnerNote");
   if (note) note.style.display = "block";
 }
 
@@ -515,12 +559,12 @@ function selectBeach(beachId) {
   buildBeachPicker(beachId, selectBeach);
 
   const storesSection = document.getElementById("storesSection");
-  if (storesSection) storesSection.style.display = beachId === "stranden" ? "block" : "none";
+  if (storesSection) storesSection.style.display = beachId === "hefner" ? "block" : "none";
   const trainSection = document.getElementById("trainSection");
-  if (trainSection) trainSection.style.display = beachId === "stranden" ? "block" : "none";
+  if (trainSection) trainSection.style.display = beachId === "hefner" ? "block" : "none";
 
-  if (beachId === "stranden") {
-    loadStranden();
+  if (beachId === "hefner") {
+    loadHefner();
     return;
   }
   const beach = BEACHES.find((b) => b.id === beachId) ?? BEACHES[0];
@@ -532,6 +576,7 @@ function init() {
   selectBeach(savedId);
   loadHome();
   renderStores();
+  renderTrains();
 
   const refreshBtn = document.getElementById("refreshBtn");
   if (refreshBtn) {
@@ -540,9 +585,10 @@ function init() {
       refreshBtn.disabled = true;
       const currentId = localStorage.getItem("badapp:lastBeach") || DEFAULT_BEACH_ID;
       await Promise.all([
-        currentId === "stranden" ? loadStranden() : loadBeach(BEACHES.find((b) => b.id === currentId) ?? BEACHES[0]),
+        currentId === "hefner" ? loadHefner() : loadBeach(BEACHES.find((b) => b.id === currentId) ?? BEACHES[0]),
         loadHome(),
       ]);
+      renderTrains();
       refreshBtn.classList.remove("spinning");
       refreshBtn.disabled = false;
     });
