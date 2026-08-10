@@ -144,50 +144,6 @@ function renderFlagLinks(beachId) {
     .join("");
 }
 
-// --- Tåg från El Pinillo (linje C1) -----------------------------
-// Cercanías har ingen öppen realtids-API (bara schemalagd data), så
-// vi räknar ut ungefärliga avgångar utifrån linjens ordinarie
-// frekvens (~20 min) och tidsspann, inte en live-koppling till tåget.
-const TRAIN_INTERVAL_MIN = 20;
-const TRAIN_SERVICE_START_MIN = 6 * 60; // 06:00
-const TRAIN_SERVICE_END_MIN = 24 * 60 + 30; // 00:30
-// Minutoffset inom varje 20-minutersintervall när tåget passerar
-// El Pinillo i respektive riktning (uppskattat från Renfes tidtabell).
-const TRAIN_OFFSET_MALAGA = 7;
-const TRAIN_OFFSET_FUENGIROLA = 17;
-
-function nextTrainTimes(offsetMin, count = 2) {
-  const now = new Date();
-  const nowMin = now.getHours() * 60 + now.getMinutes();
-  const results = [];
-  let t = Math.ceil((nowMin - offsetMin) / TRAIN_INTERVAL_MIN) * TRAIN_INTERVAL_MIN + offsetMin;
-  if (t < nowMin) t += TRAIN_INTERVAL_MIN;
-  while (results.length < count && t < TRAIN_SERVICE_END_MIN + TRAIN_INTERVAL_MIN) {
-    if (t >= TRAIN_SERVICE_START_MIN) {
-      const h = Math.floor(t / 60) % 24;
-      const m = t % 60;
-      const clock = `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-      const inMin = t - nowMin;
-      results.push({ clock, inMin });
-    }
-    t += TRAIN_INTERVAL_MIN;
-  }
-  return results;
-}
-
-function renderTrains() {
-  const malagaEl = document.getElementById("trainMalaga");
-  const fuengirolaEl = document.getElementById("trainFuengirola");
-  if (!malagaEl || !fuengirolaEl) return;
-
-  const toHtml = (trains) =>
-    trains.map((t) => `<div class="train-time">${t.clock} <span>(om ${t.inMin} min)</span></div>`).join("") ||
-    `<div class="train-time">Ingen trafik just nu</div>`;
-
-  malagaEl.innerHTML = toHtml(nextTrainTimes(TRAIN_OFFSET_MALAGA));
-  fuengirolaEl.innerHTML = toHtml(nextTrainTimes(TRAIN_OFFSET_FUENGIROLA));
-}
-
 function beachTitle(beach) {
   return beach.town ? `${beach.name}, ${beach.town}` : beach.name;
 }
@@ -576,7 +532,6 @@ function init() {
   selectBeach(savedId);
   loadHome();
   renderStores();
-  renderTrains();
 
   const refreshBtn = document.getElementById("refreshBtn");
   if (refreshBtn) {
@@ -588,7 +543,6 @@ function init() {
         currentId === "hefner" ? loadHefner() : loadBeach(BEACHES.find((b) => b.id === currentId) ?? BEACHES[0]),
         loadHome(),
       ]);
-      renderTrains();
       refreshBtn.classList.remove("spinning");
       refreshBtn.disabled = false;
     });
