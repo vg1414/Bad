@@ -390,6 +390,32 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   line-height:1.4;
   margin:0 0 1.6rem;
 }
+.train-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0.7rem;
+  margin-bottom:0.6rem;
+}
+.train-card{
+  display:block;
+  background:#fff;
+  border-radius:var(--radius);
+  padding:0.9rem 1rem;
+  box-shadow:0 2px 10px rgba(14,36,48,0.06);
+  text-decoration:none;
+  color:inherit;
+}
+.train-dir{
+  font-weight:600;
+  font-size:0.9rem;
+  color:var(--sea-deep);
+  margin-bottom:0.3rem;
+}
+.train-hint{
+  font-size:0.7rem;
+  color:var(--sunset);
+  font-weight:600;
+}
 
 /* ===== Forecast ===== */
 .forecast h2{

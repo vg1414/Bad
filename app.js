@@ -516,6 +516,8 @@ function selectBeach(beachId) {
 
   const storesSection = document.getElementById("storesSection");
   if (storesSection) storesSection.style.display = beachId === "stranden" ? "block" : "none";
+  const trainSection = document.getElementById("trainSection");
+  if (trainSection) trainSection.style.display = beachId === "stranden" ? "block" : "none";
 
   if (beachId === "stranden") {
     loadStranden();
