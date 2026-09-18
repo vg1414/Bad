@@ -2,6 +2,9 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-18 (nytt appnamn)
+- Bytte appens namn på hemskärmen från "Badläget" till "Spanien" (i `manifest.json`) — de som redan lagt till appen behöver ta bort och lägga till den på nytt för att se det nya namnet
+
 ## 2026-09-18 (installationstips på väljarvyn)
 - Lade till en hopfällbar installationsguide längst ner på platsväljaren, med steg för att lägga till appen på hemskärmen på både iPhone (Safari) och Android (Chrome)
 
