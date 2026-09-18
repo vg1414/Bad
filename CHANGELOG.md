@@ -2,6 +2,10 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-18 (ny app-ikon)
+- Ny app-ikon och favicon: en designad sol (glow + strålar) på turkos/koral-gradient, i stället för de gamla ikonerna — genererad i alla storlekar (16, 32, 180, 192, 512px) plus maskable-varianter för Android och en riktig `favicon.ico`
+- Tog bort strand-emojin bredvid "Badläget" i menyn — texten står nu ensam, matchar bättre med den nya ikonen
+
 ## 2026-09-18 (facelift)
 - Total visuell facelift: nytt ljust färgschema (turkos/koral-accenter), Space Grotesk + Inter-typografi, glasiga kort med hover-effekter och scroll-reveal-animationer
 - Nytt hero-avsnitt: fullbredds parallax-foto från La casa del Hefners takterrass (`images/hefner-view.jpg`), med flaggan och badläge-status i ett expanderbart glaskort ovanpå (minimerat läge visar bara namn + status, klick expanderar detaljer/länkar)
