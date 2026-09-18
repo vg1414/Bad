@@ -204,6 +204,8 @@ function renderBeach(beach, marine, weather, cachedTs) {
   const prefix = cachedTs ? "Sparad data från" : "Uppdaterad";
   document.getElementById("lastUpdated").textContent =
     `${prefix} ${new Date(stamp).toLocaleString("sv-SE", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })}`;
+
+  animateAllStatValues();
 }
 
 function renderForecast(marine, weather, rowId = "forecastRow") {
@@ -275,6 +277,135 @@ function renderHourly(weather, rowId = "hourlyRow") {
     `;
     row.appendChild(el);
   });
+}
+
+// --- Scroll-reveal: sektioner tonas in när de blir synliga -----------------
+function initScrollReveal() {
+  const targets = document.querySelectorAll(".stat-grid, .hourly, .forecast, .stores, #trainSection, .home-card");
+  targets.forEach((el) => el.classList.add("reveal"));
+
+  if (!("IntersectionObserver" in window)) {
+    targets.forEach((el) => el.classList.add("in-view"));
+    return;
+  }
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in-view");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15 }
+  );
+  targets.forEach((el) => observer.observe(el));
+}
+
+// --- Topbar: byter från transparent till frostat glas när man scrollar ----
+function initTopbarScroll() {
+  const topbar = document.querySelector(".topbar");
+  if (!topbar) return;
+  const onScroll = () => {
+    topbar.classList.toggle("scrolled", window.scrollY > 40);
+  };
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+}
+
+// --- Hero-fotot: enkel parallax, bilden rör sig långsammare än sidan ------
+// Ren transform-baserad parallax (ingen bakgrundsbild-attachment-hack, som
+// inte fungerar bra på mobil) — GPU-vänligt och respekterar reduced-motion.
+function initHeroParallax() {
+  const bg = document.getElementById("heroPhotoBg");
+  const hero = document.getElementById("flagHero");
+  if (!bg || !hero) return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  // Svagare effekt på mobil (99% av trafiken) — stark parallax känns lätt
+  // ryckig när adressfältet i mobilbrowsers visar/döljer sig under scroll.
+  const strength = window.matchMedia("(max-width: 560px)").matches ? 0.15 : 0.35;
+
+  let ticking = false;
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const rect = hero.getBoundingClientRect();
+      const offset = rect.top * strength;
+      bg.style.transform = `translateY(${offset.toFixed(1)}px)`;
+      ticking = false;
+    });
+  };
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+}
+
+// --- Hero-kortet: minimerat läge visar bara rubrik + badläge, expanderat
+// läge visar disclaimer/länkar/Hefner-not. Håller mindre av fotot dolt. --
+function initHeroTextToggle() {
+  const toggle = document.getElementById("heroTextToggle");
+  const details = document.getElementById("heroTextDetails");
+  if (!toggle || !details) return;
+  toggle.addEventListener("click", () => {
+    const expanded = toggle.getAttribute("aria-expanded") === "true";
+    toggle.setAttribute("aria-expanded", String(!expanded));
+    details.classList.toggle("expanded", !expanded);
+  });
+}
+
+// --- Tilt-hover: statistikkorten lutar lätt mot muspekaren (desktop) ------
+function initCardTilt() {
+  if (window.matchMedia && window.matchMedia("(hover: none)").matches) return;
+  document.querySelectorAll(".stat-card").forEach((card) => {
+    card.addEventListener("mousemove", (e) => {
+      const rect = card.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(500px) rotateX(${(-py * 8).toFixed(2)}deg) rotateY(${(px * 8).toFixed(2)}deg) translateY(-3px)`;
+    });
+    card.addEventListener("mouseleave", () => {
+      card.style.transform = "";
+    });
+  });
+}
+
+// --- Count-up: stat-siffror räknar upp från 0 när de först får ett värde --
+// Läser talet ur textContent (t.ex. "1.2 m" eller "24°"), animerar en kopia
+// av siffran och skriver tillbaka hela texten (inkl. enhet) på sista frame.
+function animateCountUp(el) {
+  if (!el || el.dataset.counting === "1") return;
+  const text = el.textContent.trim();
+  const match = text.match(/-?\d+(\.\d+)?/);
+  if (!match) return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const target = parseFloat(match[0]);
+  const decimals = match[0].includes(".") ? match[0].split(".")[1].length : 0;
+  const prefix = text.slice(0, match.index);
+  const suffix = text.slice(match.index + match[0].length);
+
+  el.dataset.counting = "1";
+  const duration = 700;
+  const start = performance.now();
+
+  function frame(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const value = target * eased;
+    el.textContent = `${prefix}${value.toFixed(decimals)}${suffix}`;
+    if (t < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      el.textContent = text;
+      el.dataset.counting = "0";
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function animateAllStatValues() {
+  document.querySelectorAll(".stat-value, .home-stat .stat-value").forEach(animateCountUp);
 }
 
 function formatTime(iso) {
@@ -383,6 +514,7 @@ function renderHome(data) {
   document.getElementById("homeCond").textContent = weatherEmoji(code);
   renderHourly(data, "homeHourlyRow");
   renderForecast(null, data, "homeForecastRow");
+  animateAllStatValues();
 }
 
 // --- 6. Mataffärer nära C. Antonio García Fernández 7 -----------
@@ -396,7 +528,7 @@ const STORES = [
     brandFg: "#ffffff",
     distance: "~160 m",
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Dia+Maxi+Torremolinos&query_place_id=ChIJQ3_Ol378cg0Rh5LY9ZUaSMc",
-    hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "15:00" } },
+    hours: { mon: { open: "09:00", close: "21:30" }, tue: { open: "09:00", close: "21:30" }, wed: { open: "09:00", close: "21:30" }, thu: { open: "09:00", close: "21:30" }, fri: { open: "09:00", close: "21:30" }, sat: { open: "09:00", close: "21:30" }, sun: { open: "09:00", close: "15:00" } },
   },
   {
     name: "Lidl",
@@ -405,7 +537,7 @@ const STORES = [
     brandFg: "#FFD100",
     distance: "~400 m",
     mapsUrl: "https://www.google.com/maps/search/?api=1&query=Lidl+Torremolinos&query_place_id=ChIJF6BlGHr8cg0RCrq8w6A52K8",
-    hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "22:00" } },
+    hours: { mon: { open: "09:00", close: "21:30" }, tue: { open: "09:00", close: "21:30" }, wed: { open: "09:00", close: "21:30" }, thu: { open: "09:00", close: "21:30" }, fri: { open: "09:00", close: "21:30" }, sat: { open: "09:00", close: "21:30" }, sun: { open: "09:00", close: "21:30" } },
   },
   {
     name: "Mercadona",
@@ -496,23 +628,44 @@ function renderStores() {
   });
 }
 
-// --- 7. Strandväljaren (chips högst upp) ---------------------
-function buildBeachPicker(activeId, onSelect) {
-  const nav = document.getElementById("beachPicker");
-  nav.innerHTML = "";
+// --- 7. Platsväljaren (fullskärmsvy: första gången + "Byt plats") --------
+// Ersätter den gamla chip-raden i hero:t — istället väljer man plats en
+// gång, den sparas som förval, och man kommer direkt till den nästa gång.
+function buildLocationGrid(activeId, onSelect) {
+  const grid = document.getElementById("locationGrid");
+  if (!grid) return;
+  grid.innerHTML = "";
   PICKER_ITEMS.forEach((item) => {
     const btn = document.createElement("button");
-    btn.className = "beach-chip" + (item.id === activeId ? " active" : "");
-    btn.textContent = item.name;
+    btn.className = "location-card" + (item.id === activeId ? " active" : "");
+    btn.innerHTML = `
+      <span class="location-card-icon">${item.id === "hefner" ? "🏠" : "🏖️"}</span>
+      <span class="location-card-name">${item.name}</span>
+    `;
     btn.addEventListener("click", () => onSelect(item.id));
-    nav.appendChild(btn);
+    grid.appendChild(btn);
   });
+}
+
+function showLocationPicker() {
+  const picker = document.getElementById("locationPicker");
+  if (picker) picker.hidden = false;
+  document.body.classList.add("picking-location");
+}
+
+function hideLocationPicker() {
+  const picker = document.getElementById("locationPicker");
+  if (picker) picker.hidden = true;
+  document.body.classList.remove("picking-location");
 }
 
 // --- 8. Starta appen -------------------------------------------
 function selectBeach(beachId) {
   localStorage.setItem("badapp:lastBeach", beachId);
-  buildBeachPicker(beachId, selectBeach);
+  buildLocationGrid(beachId, (id) => {
+    selectBeach(id);
+    hideLocationPicker();
+  });
 
   const storesSection = document.getElementById("storesSection");
   if (storesSection) storesSection.style.display = beachId === "hefner" ? "block" : "none";
@@ -528,10 +681,22 @@ function selectBeach(beachId) {
 }
 
 function init() {
-  const savedId = localStorage.getItem("badapp:lastBeach") || DEFAULT_BEACH_ID;
-  selectBeach(savedId);
+  const savedId = localStorage.getItem("badapp:lastBeach");
+  selectBeach(savedId || DEFAULT_BEACH_ID);
+  if (!savedId) showLocationPicker();
+
+  const changeLocationBtn = document.getElementById("changeLocationBtn");
+  if (changeLocationBtn) {
+    changeLocationBtn.addEventListener("click", showLocationPicker);
+  }
+
   loadHome();
   renderStores();
+  initScrollReveal();
+  initTopbarScroll();
+  initHeroParallax();
+  initCardTilt();
+  initHeroTextToggle();
 
   const refreshBtn = document.getElementById("refreshBtn");
   if (refreshBtn) {
