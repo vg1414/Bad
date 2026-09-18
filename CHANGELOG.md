@@ -2,6 +2,9 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-18 (installationstips på väljarvyn)
+- Lade till en hopfällbar installationsguide längst ner på platsväljaren, med steg för att lägga till appen på hemskärmen på både iPhone (Safari) och Android (Chrome)
+
 ## 2026-09-18 (nytt boende: La casa del Ehrborg)
 - Nytt "hem" i platsväljaren: La casa del Ehrborg (Calle las Tórtolas 14, Torreblanca/Fuengirola), med samma typ av medelvärdesberäkning som Hefner — här baserat på närmaste strand, Playa de Torreblanca
 - Egna mataffärer nära Ehrborg (Alsara Express, Maxi Market, Covirán) samt Mercado Virgen del Carmen i Los Boliches, som nås med lokalbussen
