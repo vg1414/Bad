@@ -2,6 +2,9 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-18 (ny hero-bild)
+- Bytte hero-fotot mot en ny bild från terrassen (citronträd, tak och havet i bakgrunden), sparad som `images/hefner-terrace.jpg`
+
 ## 2026-09-18 (ny app-ikon)
 - Ny app-ikon och favicon: en designad sol (glow + strålar) på turkos/koral-gradient, i stället för de gamla ikonerna — genererad i alla storlekar (16, 32, 180, 192, 512px) plus maskable-varianter för Android och en riktig `favicon.ico`
 - Tog bort strand-emojin bredvid "Badläget" i menyn — texten står nu ensam, matchar bättre med den nya ikonen

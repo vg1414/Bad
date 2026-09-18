@@ -239,9 +239,9 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 .hero-photo-bg{
   position:absolute;
   inset:-8% 0 -8% 0;
-  background-image:url("images/hefner-view.jpg");
+  background-image:url("images/hefner-terrace.jpg");
   background-size:cover;
-  background-position:center 45%;
+  background-position:center 62%;
   will-change:transform;
 }
 .hero-photo-scrim{
