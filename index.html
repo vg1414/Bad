@@ -78,7 +78,6 @@
       </div>
     </div>
   </div>
-  <p class="hero-photo-credit">Utsikten från La casa del Hefner</p>
 </section>
 
 <main>
@@ -131,41 +130,80 @@
     <div class="forecast-row" id="forecastRow"></div>
   </section>
 
-  <!-- MATAFFÄRER -->
-  <section class="stores" id="storesSection">
-    <h2>Närmaste mataffärer</h2>
-    <div class="stores-row" id="storesRow"></div>
-    <p class="stores-note">Uträknat lokalt, känner av stora helgdagar (nyår, trettondag, 1 maj, jul). Klicka för att dubbelkolla på kartan.</p>
-  </section>
+  <!-- LA CASA DEL HEFNER: mataffärer + tåg -->
+  <div id="hefnerSection">
+    <section class="stores" id="storesSection">
+      <h2>Närmaste mataffärer</h2>
+      <div class="stores-row" id="storesRow"></div>
+      <p class="stores-note">Uträknat lokalt, känner av stora helgdagar (nyår, trettondag, 1 maj, jul). Klicka för att dubbelkolla på kartan.</p>
+    </section>
 
-  <!-- TÅG -->
-  <section class="stores" id="trainSection">
-    <h2>Tåg till/från El Pinillo</h2>
-    <div class="train-row">
-      <div class="train-card">
-        <div class="train-dir">🚆 Málaga</div>
-        <div class="train-links">
-          <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=M%C3%A1laga-Centro+Alameda&destination_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&travelmode=transit" target="_blank" rel="noopener">Till</a>
-          <a href="https://www.google.com/maps/dir/?api=1&origin=M%C3%A1laga-Centro+Alameda&origin_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Från</a>
+    <section class="transport" id="trainSection">
+      <h2>Tåg till/från El Pinillo</h2>
+      <div class="train-row">
+        <div class="train-card">
+          <div class="train-dir">🚆 Málaga</div>
+          <div class="train-links">
+            <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=M%C3%A1laga-Centro+Alameda&destination_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&travelmode=transit" target="_blank" rel="noopener">Till</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=M%C3%A1laga-Centro+Alameda&origin_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Från</a>
+          </div>
+        </div>
+        <div class="train-card">
+          <div class="train-dir">🚆 Fuengirola</div>
+          <div class="train-links">
+            <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Fuengirola&destination_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&travelmode=transit" target="_blank" rel="noopener">Till</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Fuengirola&origin_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Från</a>
+          </div>
+        </div>
+        <div class="train-card">
+          <div class="train-dir">🚆 Plaza Mayor</div>
+          <div class="train-links">
+            <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Plaza+Mayor+M%C3%A1laga&travelmode=transit" target="_blank" rel="noopener">Till</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Plaza+Mayor+M%C3%A1laga&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Från</a>
+          </div>
         </div>
       </div>
-      <div class="train-card">
-        <div class="train-dir">🚆 Fuengirola</div>
-        <div class="train-links">
-          <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Fuengirola&destination_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&travelmode=transit" target="_blank" rel="noopener">Till</a>
-          <a href="https://www.google.com/maps/dir/?api=1&origin=Fuengirola&origin_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Från</a>
+      <p class="stores-note">Öppnar Google Maps med riktiga, aktuella avgångstider.</p>
+    </section>
+  </div>
+
+  <!-- LA CASA DEL EHRBORG: mataffärer + buss/tåg -->
+  <div id="ehrborgSection" style="display:none">
+    <section class="stores" id="ehrborgStoresSection">
+      <h2>Närmaste mataffärer</h2>
+      <div class="stores-row" id="ehrborgStoresRow"></div>
+      <p class="stores-note">Uträknat lokalt, känner av stora helgdagar (nyår, trettondag, 1 maj, jul). Klicka för att dubbelkolla på kartan.</p>
+    </section>
+
+    <section class="transport" id="ehrborgBusSection">
+      <h2>Buss L-5, hållplats C/ Tórtolas–Dalias</h2>
+      <div class="train-row train-row-single">
+        <div class="train-card">
+          <div class="train-dir">🚌 Mercado de Los Boliches</div>
+          <div class="train-links">
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Calle+las+T%C3%B3rtolas+14+Fuengirola&destination=Mercado+Virgen+del+Carmen+Los+Boliches+Fuengirola&travelmode=transit" target="_blank" rel="noopener">Till</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Mercado+Virgen+del+Carmen+Los+Boliches+Fuengirola&destination=Calle+las+T%C3%B3rtolas+14+Fuengirola&travelmode=transit" target="_blank" rel="noopener">Från</a>
+            <a href="https://www.transportefuengirola.com/linea-5" target="_blank" rel="noopener">Tidtabell</a>
+          </div>
         </div>
       </div>
-      <div class="train-card">
-        <div class="train-dir">🚆 Plaza Mayor</div>
-        <div class="train-links">
-          <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Plaza+Mayor+M%C3%A1laga&travelmode=transit" target="_blank" rel="noopener">Till</a>
-          <a href="https://www.google.com/maps/dir/?api=1&origin=Plaza+Mayor+M%C3%A1laga&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Från</a>
+      <p class="stores-note">L-5 går lokalt inom Fuengirola (Torreblanca–Los Boliches), hållplatsen ligger precis utanför huset. Sommar- och vintertider skiljer sig — se länken för aktuell tidtabell.</p>
+    </section>
+
+    <section class="transport" id="ehrborgTrainSection">
+      <h2>Tåg från Fuengirola station</h2>
+      <div class="train-row train-row-single">
+        <div class="train-card">
+          <div class="train-dir">🚆 Málaga (via Torremolinos)</div>
+          <div class="train-links">
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Fuengirola&origin_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&destination=M%C3%A1laga-Centro+Alameda&destination_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&travelmode=transit" target="_blank" rel="noopener">Till</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=M%C3%A1laga-Centro+Alameda&origin_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&destination=Fuengirola&destination_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&travelmode=transit" target="_blank" rel="noopener">Från</a>
+          </div>
         </div>
       </div>
-    </div>
-    <p class="stores-note">Öppnar Google Maps med riktiga, aktuella avgångstider.</p>
-  </section>
+      <p class="stores-note">Fuengirola är sista stationen söderut på samma pendeltågslinje (C1) som går via Torremolinos till Málaga — ett och samma tåg. Öppnar Google Maps med riktiga, aktuella avgångstider. Fuengirola station ligger ~2 km från huset.</p>
+    </section>
+  </div>
 
   <!-- VÄSTERÅS -->
   <section class="home-card">

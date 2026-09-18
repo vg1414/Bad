@@ -14,6 +14,7 @@ const BEACHES = [
   { id: "fuentesalud",  name: "Fuente de la Salud",    town: "Benalmádena",   lat: 36.5990, lon: -4.5101 },
   { id: "santaana",     name: "Santa Ana",             town: "Benalmádena",   lat: 36.5921, lon: -4.5230 },
   { id: "malapesquera", name: "Malapesquera",          town: "Benalmádena",   lat: 36.5965, lon: -4.5171 },
+  { id: "torreblanca",  name: "Playa de Torreblanca",  town: "Fuengirola",    lat: 36.5688, lon: -4.5936 },
 ];
 
 // Ordningen spelar roll: index 2 (Playa José) används som "representant"
@@ -21,8 +22,18 @@ const BEACHES = [
 // den ligger mitt emellan de andra tre.
 const HEFNER_MEMBER_IDS = ["saltillo", "carihuela", "jose", "fuentesalud"];
 
-// Det här är vad som visas i väljaren högst upp — "La casa del Hefner" (medelvärdet) + alla enskilda.
-const PICKER_ITEMS = [{ id: "hefner", name: "La casa del Hefner" }, ...BEACHES.map((b) => ({ id: b.id, name: b.name }))];
+// Ehrborg har bara en närmaste strand, så "medelvärdet" blir samma sak
+// som den strandens egna data — men den får ändå ett eget hem-läge i
+// väljaren, precis som Hefner, så stat-korten/prognosen ser likadana ut.
+const EHRBORG_MEMBER_IDS = ["torreblanca"];
+
+// Det här är vad som visas i väljaren högst upp — de två "hemmen"
+// (medelvärden) + alla enskilda stränder.
+const PICKER_ITEMS = [
+  { id: "hefner", name: "La casa del Hefner" },
+  { id: "ehrborg", name: "La casa del Ehrborg" },
+  ...BEACHES.map((b) => ({ id: b.id, name: b.name })),
+];
 const HOME = { name: "Västerås", lat: 59.6099, lon: 16.5448 };
 
 const DEFAULT_BEACH_ID = "hefner";
@@ -119,6 +130,7 @@ function setLoadingState(beach) {
 // av Málagas universitet i samarbete med Junta de Andalucía.
 const OCEANARIA_TORREMOLINOS = "https://oceanaria.es/malaga/torremolinos/playas";
 const OCEANARIA_BENALMADENA = "https://oceanaria.es/malaga/benalmadena/playas";
+const OCEANARIA_FUENGIROLA = "https://oceanaria.es/malaga/fuengirola/playas";
 const FLAG_LINKS = {
   saltillo: [{ label: "Riktig flagga & maneter", url: OCEANARIA_TORREMOLINOS }],
   carihuela: [
@@ -129,10 +141,12 @@ const FLAG_LINKS = {
   fuentesalud: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
   santaana: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
   malapesquera: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
+  torreblanca: [{ label: "Riktig flagga & maneter", url: OCEANARIA_FUENGIROLA }],
   hefner: [
     { label: "Riktig flagga, Torremolinos", url: OCEANARIA_TORREMOLINOS },
     { label: "Riktig flagga, Benalmádena", url: OCEANARIA_BENALMADENA },
   ],
+  ehrborg: [{ label: "Riktig flagga, Fuengirola", url: OCEANARIA_FUENGIROLA }],
 };
 
 function renderFlagLinks(beachId) {
@@ -281,7 +295,7 @@ function renderHourly(weather, rowId = "hourlyRow") {
 
 // --- Scroll-reveal: sektioner tonas in när de blir synliga -----------------
 function initScrollReveal() {
-  const targets = document.querySelectorAll(".stat-grid, .hourly, .forecast, .stores, #trainSection, .home-card");
+  const targets = document.querySelectorAll(".stat-grid, .hourly, .forecast, .stores, .transport, .home-card");
   targets.forEach((el) => el.classList.add("reveal"));
 
   if (!("IntersectionObserver" in window)) {
@@ -412,11 +426,14 @@ function formatTime(iso) {
   return new Date(iso).toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
 }
 
-async function loadHefner() {
-  setLoadingState({ name: "La casa del Hefner", town: "medelvärde" });
+// Generisk laddning för ett "hem" (medelvärde av en eller flera stränder).
+// Hefner har fyra medlemsstränder, Ehrborg bara en (Torreblanca) — koden
+// funkar likadant oavsett antal.
+async function loadHomeAverage(homeId, memberIds, displayName) {
+  setLoadingState({ name: displayName, town: "medelvärde" });
 
   try {
-    const members = HEFNER_MEMBER_IDS.map((id) => BEACHES.find((b) => b.id === id));
+    const members = memberIds.map((id) => BEACHES.find((b) => b.id === id));
     const pairs = await Promise.all(
       members.map((b) =>
         Promise.all([
@@ -427,28 +444,29 @@ async function loadHefner() {
     );
     const marines = pairs.map((p) => p[0]);
     const weathers = pairs.map((p) => p[1]);
-    const { marineSynth, weatherSynth } = averageHefner(marines, weathers);
+    const { marineSynth, weatherSynth } = averageMembers(marines, weathers);
 
-    renderBeach({ id: "hefner", name: "La casa del Hefner", town: "" }, marineSynth, weatherSynth);
-    showHefnerNote();
-    localStorage.setItem("badapp:hefner", JSON.stringify({ marine: marineSynth, weather: weatherSynth, ts: Date.now() }));
+    renderBeach({ id: homeId, name: displayName, town: "" }, marineSynth, weatherSynth);
+    showHomeNote(homeId);
+    localStorage.setItem(`badapp:${homeId}`, JSON.stringify({ marine: marineSynth, weather: weatherSynth, ts: Date.now() }));
   } catch (err) {
     console.error(err);
-    const cached = localStorage.getItem("badapp:hefner");
+    const cached = localStorage.getItem(`badapp:${homeId}`);
     if (cached) {
       const { marine, weather, ts } = JSON.parse(cached);
-      renderBeach({ id: "hefner", name: "La casa del Hefner", town: "" }, marine, weather, ts);
-      showHefnerNote();
+      renderBeach({ id: homeId, name: displayName, town: "" }, marine, weather, ts);
+      showHomeNote(homeId);
     } else {
       document.getElementById("heroSub").textContent = "Kunde inte hämta data just nu. Testa igen om en stund.";
     }
   }
 }
 
-// Slår ihop data från flera stränder till ett medelvärde. Aktuella värden
-// (våghöjd, temperaturer, vind, UV) medelvärdesberäknas rakt av. Timprognos
-// och soltider hämtas från Playa José, som ligger mitt emellan de andra tre.
-function averageHefner(marines, weathers) {
+// Slår ihop data från en eller flera stränder till ett medelvärde. Aktuella
+// värden (våghöjd, temperaturer, vind, UV) medelvärdesberäknas rakt av.
+// Timprognos och soltider hämtas från en "representant"-strand — för Hefner
+// Playa José (mitt emellan de andra tre), för Ehrborg den enda stranden.
+function averageMembers(marines, weathers) {
   const avg = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
 
   const waveVals = marines.map((m) => m.current?.wave_height).filter((v) => v != null);
@@ -458,7 +476,7 @@ function averageHefner(marines, weathers) {
   const windVals = weathers.map((w) => w.current?.wind_speed_10m).filter((v) => v != null);
   const uvVals = weathers.map((w) => w.daily?.uv_index_max?.[0]).filter((v) => v != null);
 
-  const repIdx = Math.min(2, weathers.length - 1); // Playa José
+  const repIdx = Math.min(2, weathers.length - 1); // Playa José för Hefner, index 0 för Ehrborg
   const rep = weathers[repIdx];
   const repMarine = marines[repIdx];
 
@@ -479,9 +497,16 @@ function averageHefner(marines, weathers) {
   return { marineSynth, weatherSynth };
 }
 
-function showHefnerNote() {
+const HOME_NOTES = {
+  hefner: "Medelvärde av Playa del Saltillo, La Carihuela, Playa José och Fuente de la Salud.",
+  ehrborg: "Data för Playa de Torreblanca, närmaste strand från Calle las Tórtolas.",
+};
+
+function showHomeNote(homeId) {
   const note = document.getElementById("hefnerNote");
-  if (note) note.style.display = "block";
+  if (!note) return;
+  note.textContent = HOME_NOTES[homeId] ?? "";
+  note.style.display = "block";
 }
 
 
@@ -517,47 +542,91 @@ function renderHome(data) {
   animateAllStatValues();
 }
 
-// --- 6. Mataffärer nära C. Antonio García Fernández 7 -----------
+// --- 6. Mataffärer nära respektive hem -----------------------------
 // Öppettider hämtade manuellt (Google Maps) — uppdatera själv om en
 // affär ändrar sina ordinarie tider.
-const STORES = [
-  {
-    name: "Dia (DIA Maxi)",
-    short: "DIA",
-    brandBg: "#EE1C25",
-    brandFg: "#ffffff",
-    distance: "~160 m",
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Dia+Maxi+Torremolinos&query_place_id=ChIJQ3_Ol378cg0Rh5LY9ZUaSMc",
-    hours: { mon: { open: "09:00", close: "21:30" }, tue: { open: "09:00", close: "21:30" }, wed: { open: "09:00", close: "21:30" }, thu: { open: "09:00", close: "21:30" }, fri: { open: "09:00", close: "21:30" }, sat: { open: "09:00", close: "21:30" }, sun: { open: "09:00", close: "15:00" } },
-  },
-  {
-    name: "Lidl",
-    short: "LIDL",
-    brandBg: "#0050AA",
-    brandFg: "#FFD100",
-    distance: "~400 m",
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Lidl+Torremolinos&query_place_id=ChIJF6BlGHr8cg0RCrq8w6A52K8",
-    hours: { mon: { open: "09:00", close: "21:30" }, tue: { open: "09:00", close: "21:30" }, wed: { open: "09:00", close: "21:30" }, thu: { open: "09:00", close: "21:30" }, fri: { open: "09:00", close: "21:30" }, sat: { open: "09:00", close: "21:30" }, sun: { open: "09:00", close: "21:30" } },
-  },
-  {
-    name: "Mercadona",
-    short: "Mercadona",
-    brandBg: "#00A65E",
-    brandFg: "#ffffff",
-    distance: "~500 m",
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Mercadona+Torremolinos&query_place_id=ChIJXRr-ufD9cg0RRHg-ptLm7Po",
-    hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "15:00" } },
-  },
-  {
-    name: "Carrefour",
-    short: "Carrefour",
-    brandBg: "#004E9E",
-    brandFg: "#F36F21",
-    distance: "~750 m",
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Carrefour+Costasol+Torremolinos&query_place_id=ChIJ_____5v7cg0RMVT4JM99Hnk",
-    hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "10:00", close: "22:00" } },
-  },
-];
+const STORES_BY_HOME = {
+  // Nära C. Antonio García Fernández 7 (La casa del Hefner)
+  hefner: [
+    {
+      name: "Dia (DIA Maxi)",
+      short: "DIA",
+      brandBg: "#EE1C25",
+      brandFg: "#ffffff",
+      distance: "~160 m",
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=Dia+Maxi+Torremolinos&query_place_id=ChIJQ3_Ol378cg0Rh5LY9ZUaSMc",
+      hours: { mon: { open: "09:00", close: "21:30" }, tue: { open: "09:00", close: "21:30" }, wed: { open: "09:00", close: "21:30" }, thu: { open: "09:00", close: "21:30" }, fri: { open: "09:00", close: "21:30" }, sat: { open: "09:00", close: "21:30" }, sun: { open: "09:00", close: "15:00" } },
+    },
+    {
+      name: "Lidl",
+      short: "LIDL",
+      brandBg: "#0050AA",
+      brandFg: "#FFD100",
+      distance: "~400 m",
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=Lidl+Torremolinos&query_place_id=ChIJF6BlGHr8cg0RCrq8w6A52K8",
+      hours: { mon: { open: "09:00", close: "21:30" }, tue: { open: "09:00", close: "21:30" }, wed: { open: "09:00", close: "21:30" }, thu: { open: "09:00", close: "21:30" }, fri: { open: "09:00", close: "21:30" }, sat: { open: "09:00", close: "21:30" }, sun: { open: "09:00", close: "21:30" } },
+    },
+    {
+      name: "Mercadona",
+      short: "Mercadona",
+      brandBg: "#00A65E",
+      brandFg: "#ffffff",
+      distance: "~500 m",
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=Mercadona+Torremolinos&query_place_id=ChIJXRr-ufD9cg0RRHg-ptLm7Po",
+      hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "09:00", close: "15:00" } },
+    },
+    {
+      name: "Carrefour",
+      short: "Carrefour",
+      brandBg: "#004E9E",
+      brandFg: "#F36F21",
+      distance: "~750 m",
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=Carrefour+Costasol+Torremolinos&query_place_id=ChIJ_____5v7cg0RMVT4JM99Hnk",
+      hours: { mon: { open: "09:00", close: "22:00" }, tue: { open: "09:00", close: "22:00" }, wed: { open: "09:00", close: "22:00" }, thu: { open: "09:00", close: "22:00" }, fri: { open: "09:00", close: "22:00" }, sat: { open: "09:00", close: "22:00" }, sun: { open: "10:00", close: "22:00" } },
+    },
+  ],
+  // Nära Calle las Tórtolas 14 (La casa del Ehrborg), Torreblanca/Fuengirola.
+  // Inga stora kedjor inom promenadavstånd (Mercadona/Lidl ligger 2-4 km
+  // bort) — de här tre lokala butikerna ligger alla inom ~1 km.
+  ehrborg: [
+    {
+      name: "Alsara Express",
+      short: "Alsara",
+      brandBg: "#2E7D32",
+      brandFg: "#ffffff",
+      distance: "~930 m",
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=Alsara+Express+Fuengirola",
+      hours: { mon: { open: "09:30", close: "21:00" }, tue: { open: "09:30", close: "21:00" }, wed: { open: "09:30", close: "21:00" }, thu: { open: "09:30", close: "21:00" }, fri: { open: "09:30", close: "21:00" }, sat: { open: "09:30", close: "21:00" } },
+    },
+    {
+      name: "Maxi Market",
+      short: "Maxi Market",
+      brandBg: "#C62828",
+      brandFg: "#ffffff",
+      distance: "~1,1 km",
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=Maxi+Market+Calle+del+Ficus+Fuengirola",
+      hours: { mon: { open: "09:00", close: "20:30" }, tue: { open: "09:00", close: "20:30" }, wed: { open: "09:00", close: "20:30" }, thu: { open: "09:00", close: "20:30" }, fri: { open: "09:00", close: "20:30" }, sat: { open: "09:00", close: "20:30" } },
+    },
+    {
+      name: "Covirán",
+      short: "Covirán",
+      brandBg: "#EF6C00",
+      brandFg: "#ffffff",
+      distance: "~1,1 km",
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=Coviran+Paseo+Maritimo+Rey+de+Espana+Fuengirola",
+      hours: { mon: { open: "08:30", close: "22:00" }, tue: { open: "08:30", close: "22:00" }, wed: { open: "08:30", close: "22:00" }, thu: { open: "08:30", close: "22:00" }, fri: { open: "08:30", close: "22:00" }, sat: { open: "08:30", close: "22:00" }, sun: { open: "08:30", close: "22:00" } },
+    },
+    {
+      name: "Mercado Virgen del Carmen (Los Boliches)",
+      short: "Mercado Boliches",
+      brandBg: "#00695C",
+      brandFg: "#ffffff",
+      distance: "~2,3 km · med L-5-bussen",
+      mapsUrl: "https://www.google.com/maps/search/?api=1&query=Mercado+Virgen+del+Carmen+Los+Boliches+Fuengirola",
+      hours: { mon: { open: "08:30", close: "15:00" }, tue: { open: "08:30", close: "15:00" }, wed: { open: "08:30", close: "15:00" }, thu: { open: "08:30", close: "15:00" }, fri: { open: "08:30", close: "15:00" }, sat: { open: "09:00", close: "13:30" } },
+    },
+  ],
+};
 
 // De stora, nationellt obligatoriska stängningsdagarna i Spanien.
 // Dessa är alltid på samma datum, oavsett år, så vi kan kolla
@@ -575,8 +644,8 @@ function isMandatoryClosedToday(now) {
   return MANDATORY_CLOSED_DATES.some(([mm, dd]) => mm === m && dd === d);
 }
 
-function renderStores() {
-  const row = document.getElementById("storesRow");
+function renderStores(rowId, stores) {
+  const row = document.getElementById(rowId);
   if (!row) return;
   row.innerHTML = "";
 
@@ -585,7 +654,7 @@ function renderStores() {
   const todayKey = dayKeys[now.getDay()];
   const mandatoryClosed = isMandatoryClosedToday(now);
 
-  STORES.forEach((store) => {
+  stores.forEach((store) => {
     const todayHours = store.hours[todayKey];
     let statusClass = "closed";
     let statusText = "Stängt idag";
@@ -638,8 +707,9 @@ function buildLocationGrid(activeId, onSelect) {
   PICKER_ITEMS.forEach((item) => {
     const btn = document.createElement("button");
     btn.className = "location-card" + (item.id === activeId ? " active" : "");
+    const isHome = item.id === "hefner" || item.id === "ehrborg";
     btn.innerHTML = `
-      <span class="location-card-icon">${item.id === "hefner" ? "🏠" : "🏖️"}</span>
+      <span class="location-card-icon">${isHome ? "🏠" : "🏖️"}</span>
       <span class="location-card-name">${item.name}</span>
     `;
     btn.addEventListener("click", () => onSelect(item.id));
@@ -660,6 +730,17 @@ function hideLocationPicker() {
 }
 
 // --- 8. Starta appen -------------------------------------------
+const HOME_SECTION_IDS = ["hefnerSection", "ehrborgSection"];
+
+// Laddar rätt data för valfritt id — de två hemmen (medelvärden) eller en
+// enskild strand. Används av både selectBeach och uppdatera-knappen.
+function loadForId(beachId) {
+  if (beachId === "hefner") return loadHomeAverage("hefner", HEFNER_MEMBER_IDS, "La casa del Hefner");
+  if (beachId === "ehrborg") return loadHomeAverage("ehrborg", EHRBORG_MEMBER_IDS, "La casa del Ehrborg");
+  const beach = BEACHES.find((b) => b.id === beachId) ?? BEACHES[0];
+  return loadBeach(beach);
+}
+
 function selectBeach(beachId) {
   localStorage.setItem("badapp:lastBeach", beachId);
   buildLocationGrid(beachId, (id) => {
@@ -667,17 +748,12 @@ function selectBeach(beachId) {
     hideLocationPicker();
   });
 
-  const storesSection = document.getElementById("storesSection");
-  if (storesSection) storesSection.style.display = beachId === "hefner" ? "block" : "none";
-  const trainSection = document.getElementById("trainSection");
-  if (trainSection) trainSection.style.display = beachId === "hefner" ? "block" : "none";
+  HOME_SECTION_IDS.forEach((sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) section.style.display = sectionId === `${beachId}Section` ? "block" : "none";
+  });
 
-  if (beachId === "hefner") {
-    loadHefner();
-    return;
-  }
-  const beach = BEACHES.find((b) => b.id === beachId) ?? BEACHES[0];
-  loadBeach(beach);
+  loadForId(beachId);
 }
 
 function init() {
@@ -691,7 +767,8 @@ function init() {
   }
 
   loadHome();
-  renderStores();
+  renderStores("storesRow", STORES_BY_HOME.hefner);
+  renderStores("ehrborgStoresRow", STORES_BY_HOME.ehrborg);
   initScrollReveal();
   initTopbarScroll();
   initHeroParallax();
@@ -704,10 +781,7 @@ function init() {
       refreshBtn.classList.add("spinning");
       refreshBtn.disabled = true;
       const currentId = localStorage.getItem("badapp:lastBeach") || DEFAULT_BEACH_ID;
-      await Promise.all([
-        currentId === "hefner" ? loadHefner() : loadBeach(BEACHES.find((b) => b.id === currentId) ?? BEACHES[0]),
-        loadHome(),
-      ]);
+      await Promise.all([loadForId(currentId), loadHome()]);
       refreshBtn.classList.remove("spinning");
       refreshBtn.disabled = false;
     });

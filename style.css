@@ -516,7 +516,8 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 /* ===== Section headings ===== */
 .hourly h2,
 .forecast h2,
-.stores h2{
+.stores h2,
+.transport h2{
   font-family:var(--font-display);
   font-weight:700;
   color:var(--sand);
@@ -528,7 +529,8 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 }
 .hourly h2::before,
 .forecast h2::before,
-.stores h2::before{
+.stores h2::before,
+.transport h2::before{
   content:"";
   width:7px;
   height:7px;
@@ -663,6 +665,11 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
   grid-template-columns:repeat(3,1fr);
   gap:0.5rem;
   margin-bottom:0.6rem;
+}
+/* Enstaka kort (t.ex. Ehrborgs tåg-/busslänkar) ska inte sträckas ut över
+   hela bredden. */
+.train-row-single{
+  grid-template-columns:minmax(0,280px);
 }
 .train-card{
   background:var(--panel);

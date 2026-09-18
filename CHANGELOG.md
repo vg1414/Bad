@@ -2,6 +2,13 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-18 (nytt boende: La casa del Ehrborg)
+- Nytt "hem" i platsväljaren: La casa del Ehrborg (Calle las Tórtolas 14, Torreblanca/Fuengirola), med samma typ av medelvärdesberäkning som Hefner — här baserat på närmaste strand, Playa de Torreblanca
+- Egna mataffärer nära Ehrborg (Alsara Express, Maxi Market, Covirán) samt Mercado Virgen del Carmen i Los Boliches, som nås med lokalbussen
+- Nytt transportavsnitt för Ehrborg: L-5-lokalbussen (hållplats C/ Tórtolas–Dalias, länk till officiell tidtabell) samt tåg från Fuengirola station mot Málaga (samma linje som passerar Torremolinos)
+- Tog bort bildtexten "Utsikten från La casa del Hefner" under hero-fotot, eftersom fotot nu representerar båda boendena
+- Städade bort namnet "Hefner" som stod hårdkodat på flera ställen i koden (mataffärer, tåg, medelvärdesberäkning) — allt är nu datadrivet per hem så det går lätt att lägga till fler boenden i framtiden
+
 ## 2026-09-18 (ny hero-bild)
 - Bytte hero-fotot mot en ny bild från terrassen (citronträd, tak och havet i bakgrunden), sparad som `images/hefner-terrace.jpg`
 
