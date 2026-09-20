@@ -2,6 +2,9 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-20 (vind i m/s)
+- Bytte vindenhet från km/h till m/s (standarden i svenska väderrapporter) — hämtas nu direkt i m/s från Open-Meteo, och flaggans gul/röd-trösklar är omräknade så de slår in vid samma verkliga vindstyrka som innan
+
 ## 2026-09-20 (smalare flagga)
 - Gjorde flaggan i hero-fotot smalare i förhållande till höjden, både på desktop och mobil — den kändes för bred/banderoll-lik innan
 

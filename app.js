@@ -51,7 +51,7 @@ function weatherUrl(lat, lon) {
     `&current=temperature_2m,apparent_temperature,wind_speed_10m,weather_code` +
     `&hourly=temperature_2m,weather_code` +
     `&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,weather_code` +
-    `&timezone=auto&forecast_days=6`;
+    `&timezone=auto&forecast_days=6&windspeed_unit=ms`;
 }
 
 // Enkel översättning av Open-Meteos "weather_code" till en emoji.
@@ -73,14 +73,14 @@ function weatherEmoji(code) {
 // Samma princip används av bl.a. snowy.es: grön <1m, gul 1–2.5m, röd >2.5m.
 // Vi väger också in vindstyrkan eftersom hård vind gör det farligare
 // även om vågorna vid kusten ännu inte hunnit bli höga.
-function estimateFlag(waveHeightM, windKmh) {
+function estimateFlag(waveHeightM, windMs) {
   if (waveHeightM == null) {
     return { level: "yellow", text: "Okänt läge" };
   }
-  if (waveHeightM > 2.0 || windKmh > 45) {
+  if (waveHeightM > 2.0 || windMs > 12.5) {
     return { level: "red", text: "Avrådes — höga vågor/hård vind" };
   }
-  if (waveHeightM > 1.0 || windKmh > 25) {
+  if (waveHeightM > 1.0 || windMs > 7) {
     return { level: "yellow", text: "Bada med försiktighet" };
   }
   return { level: "green", text: "Bra badläge" };
@@ -170,13 +170,13 @@ function renderBeach(beach, marine, weather, cachedTs) {
   const airTemp = weather.current?.temperature_2m ?? null;
   const feelsLike = weather.current?.apparent_temperature ?? null;
   const maxTempToday = weather.daily?.temperature_2m_max?.[0] ?? null;
-  const windKmh = weather.current?.wind_speed_10m ?? null;
+  const windMs = weather.current?.wind_speed_10m ?? null;
   const uvToday = weather.daily?.uv_index_max?.[0] ?? null;
   const sunrise = weather.daily?.sunrise?.[0];
   const sunset = weather.daily?.sunset?.[0];
 
   // --- Flaggan ---
-  const flag = estimateFlag(waveNow, windKmh);
+  const flag = estimateFlag(waveNow, windMs);
   const cloth = document.getElementById("flagCloth");
   cloth.classList.remove("flag-yellow", "flag-red");
   if (flag.level === "yellow") cloth.classList.add("flag-yellow");
@@ -185,10 +185,10 @@ function renderBeach(beach, marine, weather, cachedTs) {
     flag.level === "green" ? "Grön" : flag.level === "yellow" ? "Gul" : "Röd";
 
   // Vajar snabbare och kraftigare ju hårdare det blåser.
-  // ~0 km/h ger lugn vajning, ~50+ km/h ger stormig vajning.
-  const windForWave = windKmh ?? 10;
-  const waveIntensity = Math.min(Math.max(windForWave / 20, 0.6), 2.8);
-  const waveDuration = Math.min(Math.max(4.2 - windForWave / 15, 1.1), 4.2);
+  // ~0 m/s ger lugn vajning, ~14+ m/s ger stormig vajning.
+  const windForWave = windMs ?? 3;
+  const waveIntensity = Math.min(Math.max(windForWave / 5.5, 0.6), 2.8);
+  const waveDuration = Math.min(Math.max(4.2 - windForWave / 4.2, 1.1), 4.2);
   cloth.style.setProperty("--wave-intensity", waveIntensity.toFixed(2));
   cloth.style.setProperty("--wave-duration", `${waveDuration.toFixed(2)}s`);
 
@@ -204,7 +204,7 @@ function renderBeach(beach, marine, weather, cachedTs) {
     feelsLike != null ? `Känns som ${Math.round(feelsLike)}°` : "";
   document.getElementById("statAirMax").textContent =
     maxTempToday != null ? `Max idag ${Math.round(maxTempToday)}°` : "";
-  document.getElementById("statWind").textContent = windKmh != null ? `${Math.round(windKmh)} km/h` : "–";
+  document.getElementById("statWind").textContent = windMs != null ? `${windMs.toFixed(1).replace(".", ",")} m/s` : "–";
   document.getElementById("statUv").textContent = uvToday != null ? uvToday.toFixed(0) : "–";
   document.getElementById("statSun").textContent =
     sunrise && sunset ? `${formatTime(sunrise)}–${formatTime(sunset)}` : "–";
@@ -537,7 +537,7 @@ function renderHome(data) {
     feelsLike != null ? `Känns som ${Math.round(feelsLike)}°` : "";
   document.getElementById("homeMax").textContent =
     maxTempToday != null ? `Max idag ${Math.round(maxTempToday)}°` : "";
-  document.getElementById("homeWind").textContent = wind != null ? `${Math.round(wind)} km/h` : "–";
+  document.getElementById("homeWind").textContent = wind != null ? `${wind.toFixed(1).replace(".", ",")} m/s` : "–";
   document.getElementById("homeCond").textContent = weatherEmoji(code);
   renderHourly(data, "homeHourlyRow");
   renderForecast(null, data, "homeForecastRow");
