@@ -2,6 +2,9 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-20 (smalare flagga)
+- Gjorde flaggan i hero-fotot smalare i förhållande till höjden, både på desktop och mobil — den kändes för bred/banderoll-lik innan
+
 ## 2026-09-20 (rättad flagglänk för Ehrborg)
 - oceanaria.es listar inte Torreblanca med eget namn — bytte flagglänkens text från generiska "Fuengirola" till "Carvajal-La Torre", närmaste strand som faktiskt finns med på deras sida
 

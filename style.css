@@ -337,7 +337,7 @@ main{max-width:720px;margin:0 auto;padding:0 1rem;}
 
 .flag-pole{
   position:relative;
-  width:clamp(140px,46vw,190px);
+  width:clamp(110px,34vw,150px);
   height:150px;
   flex:0 0 auto;
   margin-top:0.2rem;
@@ -906,6 +906,6 @@ footer a{color:var(--tide);}
 }
 
 @media (max-width:480px){
-  .flag-pole{width:min(62vw,220px);}
+  .flag-pole{width:min(46vw,160px);}
   .train-row{grid-template-columns:1fr;}
 }
