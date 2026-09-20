@@ -141,12 +141,14 @@ const FLAG_LINKS = {
   fuentesalud: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
   santaana: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
   malapesquera: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
-  torreblanca: [{ label: "Riktig flagga & maneter", url: OCEANARIA_FUENGIROLA }],
+  // oceanaria.es har ingen egen sida för Torreblanca — Carvajal-La Torre är
+  // närmaste strand de faktiskt listar, så länken pekar dit istället.
+  torreblanca: [{ label: "Riktig flagga, Carvajal-La Torre", url: OCEANARIA_FUENGIROLA }],
   hefner: [
     { label: "Riktig flagga, Torremolinos", url: OCEANARIA_TORREMOLINOS },
     { label: "Riktig flagga, Benalmádena", url: OCEANARIA_BENALMADENA },
   ],
-  ehrborg: [{ label: "Riktig flagga, Fuengirola", url: OCEANARIA_FUENGIROLA }],
+  ehrborg: [{ label: "Riktig flagga, Carvajal-La Torre", url: OCEANARIA_FUENGIROLA }],
 };
 
 function renderFlagLinks(beachId) {

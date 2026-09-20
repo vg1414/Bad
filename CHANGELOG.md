@@ -2,6 +2,9 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-20 (rättad flagglänk för Ehrborg)
+- oceanaria.es listar inte Torreblanca med eget namn — bytte flagglänkens text från generiska "Fuengirola" till "Carvajal-La Torre", närmaste strand som faktiskt finns med på deras sida
+
 ## 2026-09-18 (nytt appnamn)
 - Bytte appens namn på hemskärmen från "Badläget" till "Spanien" (i `manifest.json`) — de som redan lagt till appen behöver ta bort och lägga till den på nytt för att se det nya namnet
 
