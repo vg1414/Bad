@@ -4,16 +4,14 @@
 // Kommentarer på svenska så det är lätt att följa med.
 // ============================================================
 
-// --- 1. Stränderna vi kan välja mellan ---------------------
-// "id" måste vara unikt och används för att komma ihåg vilket
-// val användaren gjorde senast (sparas i webbläsaren).
+// --- 1. Stränderna bakom de två husen ----------------------
+// Man väljer bara mellan husen (Hefner och Ehrborg). Stränderna nedan
+// används i bakgrunden: husens värden är medelvärden av dessa.
 const BEACHES = [
   { id: "saltillo",     name: "Playa del Saltillo",    town: "Torremolinos",  lat: 36.6025, lon: -4.5135 },
   { id: "carihuela",    name: "La Carihuela",          town: "Torremolinos",  lat: 36.6076, lon: -4.5046 },
   { id: "jose",         name: "Playa José",            town: "Torremolinos",  lat: 36.6018, lon: -4.5084 },
   { id: "fuentesalud",  name: "Fuente de la Salud",    town: "Benalmádena",   lat: 36.5990, lon: -4.5101 },
-  { id: "santaana",     name: "Santa Ana",             town: "Benalmádena",   lat: 36.5921, lon: -4.5230 },
-  { id: "malapesquera", name: "Malapesquera",          town: "Benalmádena",   lat: 36.5965, lon: -4.5171 },
   { id: "torreblanca",  name: "Playa de Torreblanca",  town: "Fuengirola",    lat: 36.5688, lon: -4.5936 },
 ];
 
@@ -451,38 +449,7 @@ function renderSun(weather) {
   }
 }
 
-// --- 8. Hämta och visa data för vald strand -----------------
-async function loadBeach(beach) {
-  setLoadingState(beach);
-
-  try {
-    const [marineRes, weatherRes] = await Promise.all([
-      fetch(marineUrl(beach.lat, beach.lon)),
-      fetch(weatherUrl(beach.lat, beach.lon)),
-    ]);
-    if (!marineRes.ok || !weatherRes.ok) throw new Error("Kunde inte hämta data");
-
-    const marine = await marineRes.json();
-    const weather = await weatherRes.json();
-
-    renderBeach(beach, marine, weather);
-
-    // Spara senaste lyckade svar lokalt, så vi kan visa något
-    // även om nätet är nere nästa gång sidan öppnas.
-    localStorage.setItem(`badapp:${beach.id}`, JSON.stringify({ marine, weather, ts: Date.now() }));
-  } catch (err) {
-    console.error(err);
-    const cached = localStorage.getItem(`badapp:${beach.id}`);
-    if (cached) {
-      const { marine, weather, ts } = JSON.parse(cached);
-      renderBeach(beach, marine, weather, ts);
-    } else {
-      document.getElementById("heroSub").textContent = "Ingen kontakt";
-      document.getElementById("lastUpdated").textContent = "Kunde inte hämta data — dra ner för att försöka igen";
-    }
-  }
-}
-
+// --- 8. Visa data för valt hus -----------------------------
 function setLoadingState(beach) {
   document.getElementById("heroBeachName").textContent = beach.name;
   document.getElementById("placeBtnLabel").textContent = beach.name;
@@ -497,22 +464,14 @@ const OCEANARIA_TORREMOLINOS = "https://oceanaria.es/malaga/torremolinos/playas"
 const OCEANARIA_BENALMADENA = "https://oceanaria.es/malaga/benalmadena/playas";
 const OCEANARIA_FUENGIROLA = "https://oceanaria.es/malaga/fuengirola/playas";
 const FLAG_LINKS = {
-  saltillo: [{ label: "Riktig flagga & maneter", url: OCEANARIA_TORREMOLINOS }],
-  carihuela: [
-    { label: "Riktig flagga & maneter", url: OCEANARIA_TORREMOLINOS },
-    { label: "Live-webcam", url: "https://meteo365.es/livecams/torremolinos-bajondillo.php" },
-  ],
-  jose: [{ label: "Riktig flagga & maneter", url: OCEANARIA_TORREMOLINOS }],
-  fuentesalud: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
-  santaana: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
-  malapesquera: [{ label: "Riktig flagga & maneter", url: OCEANARIA_BENALMADENA }],
-  // oceanaria.es har ingen egen sida för Torreblanca — Carvajal-La Torre är
-  // närmaste strand de faktiskt listar, så länken pekar dit istället.
-  torreblanca: [{ label: "Riktig flagga, Carvajal-La Torre", url: OCEANARIA_FUENGIROLA }],
   hefner: [
     { label: "Riktig flagga, Torremolinos", url: OCEANARIA_TORREMOLINOS },
     { label: "Riktig flagga, Benalmádena", url: OCEANARIA_BENALMADENA },
+    // Webcamen tittar på Bajondillo/La Carihuela, en av Hefners stränder
+    { label: "Live-webcam", url: "https://meteo365.es/livecams/torremolinos-bajondillo.php" },
   ],
+  // oceanaria.es har ingen egen sida för Torreblanca — Carvajal-La Torre är
+  // närmaste strand de faktiskt listar, så länken pekar dit istället.
   ehrborg: [{ label: "Riktig flagga, Carvajal-La Torre", url: OCEANARIA_FUENGIROLA }],
 };
 
@@ -1115,10 +1074,8 @@ const HOUSE_ART = {
 
 function buildLocationGrid(activeId, onSelect) {
   const homeGrid = document.getElementById("homeGrid");
-  const grid = document.getElementById("locationGrid");
-  if (!grid || !homeGrid) return;
+  if (!homeGrid) return;
   homeGrid.innerHTML = "";
-  grid.innerHTML = "";
   HOMES.forEach((h) => {
     const btn = document.createElement("button");
     btn.className = "home-choice" + (h.id === activeId ? " active" : "");
@@ -1126,19 +1083,12 @@ function buildLocationGrid(activeId, onSelect) {
     btn.addEventListener("click", () => onSelect(h.id));
     homeGrid.appendChild(btn);
   });
-  BEACHES.forEach((b) => {
-    const btn = document.createElement("button");
-    btn.className = "location-card" + (b.id === activeId ? " active" : "");
-    btn.innerHTML = `<span class="location-card-name">${b.name}</span><span class="location-card-town">${b.town}</span>`;
-    btn.addEventListener("click", () => onSelect(b.id));
-    grid.appendChild(btn);
-  });
 }
 
 function showLocationPicker() {
   const picker = document.getElementById("locationPicker");
   if (picker) picker.hidden = false;
-  document.getElementById("pickerClose").hidden = !localStorage.getItem("badapp:lastBeach");
+  document.getElementById("pickerClose").hidden = !savedHomeId();
   document.body.classList.add("picking-location");
 }
 
@@ -1199,17 +1149,21 @@ function initPullToRefresh() {
 // --- 17. Starta appen ---------------------------------------------------
 const HOME_SECTION_IDS = ["hefnerSection", "ehrborgSection"];
 
-function currentId() {
-  return localStorage.getItem("badapp:lastBeach") || DEFAULT_BEACH_ID;
+// Sparat val från förr kan vara en enskild strand som inte finns längre —
+// då räknas det som inget val, och man får välja hus på nytt.
+function savedHomeId() {
+  const id = localStorage.getItem("badapp:lastBeach");
+  return HOMES.some((h) => h.id === id) ? id : null;
 }
 
-// Laddar rätt data för valfritt id — de två hemmen (medelvärden) eller en
-// enskild strand.
+function currentId() {
+  return savedHomeId() || DEFAULT_BEACH_ID;
+}
+
+// Laddar rätt hus. Allt som inte är Ehrborg blir Hefner.
 function loadForId(beachId) {
-  if (beachId === "hefner") return loadHomeAverage("hefner", HEFNER_MEMBER_IDS, "La casa del Hefner");
   if (beachId === "ehrborg") return loadHomeAverage("ehrborg", EHRBORG_MEMBER_IDS, "La casa del Ehrborg");
-  const beach = BEACHES.find((b) => b.id === beachId) ?? BEACHES[0];
-  return loadBeach(beach);
+  return loadHomeAverage("hefner", HEFNER_MEMBER_IDS, "La casa del Hefner");
 }
 
 function refreshAll() {
@@ -1240,7 +1194,7 @@ function init() {
   Flag.init(document.getElementById("flagCanvas"));
   if (THEME_OVERRIDE) document.documentElement.dataset.daypart = THEME_OVERRIDE;
 
-  const savedId = localStorage.getItem("badapp:lastBeach");
+  const savedId = savedHomeId();
   if (!savedId) showLocationPicker();
   selectBeach(savedId || DEFAULT_BEACH_ID);
 

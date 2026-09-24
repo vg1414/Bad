@@ -2,6 +2,12 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-24 (beta: bara husen, Torreblanca station)
+- Platsväljaren visar nu bara La casa del Hefner och La casa del Ehrborg — de enskilda stränderna är borttagna (de används fortfarande i bakgrunden för husens medelvärden). Den som hade en enskild strand sparad får välja hus på nytt
+- Live-webcamen (Bajondillo/La Carihuela) ligger nu under Hefners flagglänkar
+- Ehrborg: tåget går nu från Torreblanca station (~1 km, 12–15 min promenad) istället för Fuengirola station (~2 km), med kort både mot Málaga och Fuengirola. Kartlänkarna utgår från huset så promenaden räknas med
+- Fix: stäng-knappen i platsväljaren döljs första gången man öppnar appen
+
 ## 2026-09-24 (beta: ny design "Citron & terrakotta")
 - Ny version att testa på `/beta/` — den vanliga appen är orörd. Originalet är sparat med git-taggen `original`
 - Ny mjuk stil med färger från terrassfotot (kalkvitt, citron, taktegel, himmel), typsnitten Fraunces + Nunito och egna väderikoner istället för emojis

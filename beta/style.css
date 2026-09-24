@@ -267,6 +267,7 @@ body.picking-location{overflow:hidden;}
   justify-content:center;
   cursor:pointer;
 }
+.picker-close[hidden]{display:none;}
 .eyebrow{
   margin:0 0 0.2rem;
   font-weight:800;
@@ -282,7 +283,7 @@ body.picking-location{overflow:hidden;}
   margin:0 0 1.4rem;
 }
 .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;}
-.home-choice, .location-card{
+.home-choice{
   -webkit-appearance:none;
   appearance:none;
   border:none;
@@ -324,24 +325,8 @@ body.picking-location{overflow:hidden;}
   line-height:1.1;
 }
 .home-choice-sub{position:relative;font-size:0.76rem;color:var(--tinta-faint);font-weight:600;}
-.home-choice:active, .location-card:active{transform:scale(0.96);}
-.home-choice.active, .location-card.active{box-shadow:0 0 0 2.5px var(--teja), var(--shadow-lift);}
-.picker-subhead{
-  margin:1.8rem 0 0.7rem;
-  font-weight:800;
-  font-size:0.8rem;
-  color:var(--tinta-faint);
-}
-.location-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
-.location-card{
-  border-radius:var(--radius-sm);
-  padding:0.8rem 0.9rem;
-  display:flex;
-  flex-direction:column;
-  gap:0.1rem;
-}
-.location-card-name{font-weight:800;font-size:0.88rem;line-height:1.25;}
-.location-card-town{font-size:0.74rem;color:var(--tinta-faint);font-weight:600;}
+.home-choice:active{transform:scale(0.96);}
+.home-choice.active{box-shadow:0 0 0 2.5px var(--teja), var(--shadow-lift);}
 
 .install-tip{
   margin-top:1.8rem;
@@ -860,7 +845,6 @@ footer a{color:var(--teja);font-weight:700;}
 
 @media (min-width:560px){
   .stores-row{grid-template-columns:repeat(4,1fr);}
-  .location-grid{grid-template-columns:repeat(3,1fr);}
 }
 
 @media (prefers-reduced-motion: reduce){
