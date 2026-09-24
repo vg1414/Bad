@@ -2,6 +2,14 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-24 (nya designen live)
+- Beta-versionen ("Citron & terrakotta") ersätter nu den riktiga appen på huvudadressen — se de två beta-posterna nedan för allt som ändrats
+- `beta/` är nu bara en omdirigering till huvudsidan, och beta-appens service worker tar bort sig själv
+- Service workern hämtar nu sidans filer med "no-cache", så nya versioner syns direkt istället för efter upp till 10 minuter
+- Manifestets bakgrunds- och temafärg bytta till den nya kalkvita tonen (#FFF8EC)
+- README uppdaterad med de nya funktionerna
+- Gamla designen finns kvar i git-taggen `original`
+
 ## 2026-09-24 (beta: bara husen, Torreblanca station)
 - Platsväljaren visar nu bara La casa del Hefner och La casa del Ehrborg — de enskilda stränderna är borttagna (de används fortfarande i bakgrunden för husens medelvärden). Den som hade en enskild strand sparad får välja hus på nytt
 - Live-webcamen (Bajondillo/La Carihuela) ligger nu under Hefners flagglänkar

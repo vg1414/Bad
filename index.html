@@ -1,11 +1,13 @@
 <!doctype html>
-<html lang="sv">
+<html lang="sv" data-daypart="day">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Badläget — Costa del Sol</title>
 <meta name="description" content="Se vågor, temperatur och uppskattad flaggfärg för stränderna i Torremolinos/Benalmádena, plus vädret hemma i Västerås.">
-<meta name="theme-color" content="#00A896">
+<meta name="theme-color" content="#FFF8EC" id="themeColor">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.ico?v=2" sizes="any">
 <link rel="icon" href="favicon-32.png?v=2" sizes="32x32" type="image/png">
@@ -13,39 +15,49 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..700,100,1&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header class="topbar">
+<!-- Stjärnhimmel: syns bara i natt-temat (styrs av data-daypart på <html>) -->
+<div class="night-sky" aria-hidden="true"></div>
+
+<!-- Dra-ner-för-att-uppdatera: en citron som rullar ner från toppen -->
+<div class="ptr" id="ptr" aria-hidden="true">
+  <svg class="ptr-lemon" viewBox="0 0 40 40" width="34" height="34">
+    <ellipse cx="20" cy="21" rx="14" ry="11.5" fill="var(--limon)" stroke="var(--limon-deep)" stroke-width="1.5"/>
+    <path d="M6.5 21c-1.8 0-2.6-.8-2.6-.8M33.5 21c1.8 0 2.6-.8 2.6-.8" stroke="var(--limon-deep)" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <path d="M20 9.5c1-3 3.5-4.8 7-4.6-1 3-3.6 4.7-7 4.6z" fill="var(--hoja)"/>
+    <ellipse cx="15" cy="17" rx="3.4" ry="1.8" fill="#fff" opacity=".55" transform="rotate(-25 15 17)"/>
+  </svg>
+</div>
+
+<header class="topbar" id="topbar">
   <div class="topbar-inner">
-    <span class="brand">Badläget</span>
-    <span class="topbar-right">
-      <span id="lastUpdated" class="last-updated">Hämtar data …</span>
-      <button id="changeLocationBtn" class="icon-btn" aria-label="Byt plats" title="Byt plats">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 11.5 12 4l9 7.5"></path>
-          <path d="M5.5 10v9a1 1 0 0 0 1 1H10v-5.5h4V20h3.5a1 1 0 0 0 1-1v-9"></path>
-        </svg>
-      </button>
-      <button id="refreshBtn" class="icon-btn refresh-btn" aria-label="Uppdatera">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12a9 9 0 1 1-3-6.7"></path>
-          <polyline points="21 3 21 9 15 9"></polyline>
-        </svg>
-      </button>
-    </span>
+    <button id="changeLocationBtn" class="place-btn" aria-label="Byt plats">
+      <span class="place-btn-label" id="placeBtnLabel">Badläget</span>
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </button>
+    <button id="refreshBtn" class="icon-btn refresh-btn" aria-label="Uppdatera">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12a9 9 0 1 1-3-6.7"></path>
+        <polyline points="21 3 21 9 15 9"></polyline>
+      </svg>
+    </button>
   </div>
 </header>
 
 <!-- VÄLJARVY: visas första gången (inget sparat förval) och när man trycker
-     på "Byt plats" — stora klickbara kort, ett per strand + Hefner-medelvärdet. -->
+     på platsnamnet i menyn. -->
 <section class="location-picker" id="locationPicker" aria-label="Välj plats" hidden>
   <div class="location-picker-inner">
-    <h1>Vilken plats vill du följa?</h1>
-    <p class="location-picker-sub">Du kan byta när som helst med knappen bredvid uppdatera-knappen.</p>
-    <div class="location-grid" id="locationGrid"></div>
+    <button class="picker-close" id="pickerClose" aria-label="Stäng">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <p class="eyebrow">Costa del Sol</p>
+    <h1>Var är ni idag?</h1>
+    <div class="home-grid" id="homeGrid"></div>
 
     <details class="install-tip">
       <summary>Lägg till som app på hemskärmen</summary>
@@ -71,72 +83,98 @@
   </div>
 </section>
 
-<!-- HERO: parallax-vy från takterrassen, med flaggan i en glaspanel ovanpå -->
-<section class="hero-photo" id="flagHero">
-  <div class="hero-photo-bg" id="heroPhotoBg"></div>
-  <div class="hero-photo-scrim"></div>
-  <div class="hero-photo-inner">
-    <div class="flag-pole">
-      <div class="flag-cloth" id="flagCloth">
-        <span class="flag-label" id="flagLabel">Laddar …</span>
-      </div>
-    </div>
-    <div class="hero-text" id="heroText">
-      <button class="hero-text-toggle" id="heroTextToggle" aria-expanded="false" aria-controls="heroTextDetails">
-        <span class="hero-text-headline">
-          <h1 id="heroBeachName">—</h1>
-          <p class="hero-sub" id="heroSub">Hämtar vågdata …</p>
-        </span>
-        <svg class="hero-text-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </button>
-      <div class="hero-text-details" id="heroTextDetails">
-        <div class="hero-text-details-inner">
-          <p class="flag-disclaimer">🧭 Uppskattad flagga utifrån väder &amp; vågor — inte den officiella livräddarflaggan. Se alltid flaggan på plats innan du badar.</p>
-          <div class="flag-links" id="flagLinks"></div>
-          <p class="hefner-note" id="hefnerNote" style="display:none">Medelvärde av Playa del Saltillo, La Carihuela, Playa José och Fuente de la Salud.</p>
-        </div>
-      </div>
+<!-- HERO: fotot från terrassen med en markis-kant nertill, och den vajande
+     flaggan (ritas på en canvas av app.js) -->
+<section class="hero" id="flagHero">
+  <div class="hero-bg" id="heroPhotoBg"></div>
+  <div class="hero-tint"></div>
+  <div class="hero-inner">
+    <canvas class="flag-canvas" id="flagCanvas" aria-hidden="true"></canvas>
+    <div class="hero-status">
+      <p class="hero-place" id="heroBeachName">—</p>
+      <h1 class="hero-verdict" id="heroSub">Hämtar …</h1>
+      <span class="sr-only" id="flagLabel"></span>
     </div>
   </div>
 </section>
 
 <main>
 
+  <div class="updated-row">
+    <span id="lastUpdated">Hämtar data …</span>
+    <span class="updated-hint">· dra ner för att uppdatera</span>
+  </div>
+
+  <!-- Om flaggan: disclaimer och riktiga källor, hopfällt -->
+  <details class="flag-about" id="flagAbout">
+    <summary>Om flaggan &amp; riktiga källor</summary>
+    <div class="flag-about-body">
+      <p class="flag-disclaimer">Flaggan är en uppskattning utifrån vågor och vind, inte livräddarnas officiella flagga. Titta alltid på flaggan på plats innan ni badar.</p>
+      <div class="flag-links" id="flagLinks"></div>
+      <p class="hefner-note" id="hefnerNote" style="display:none"></p>
+    </div>
+  </details>
+
   <!-- VÄRDEN -->
-  <section class="stat-grid" id="statGrid" aria-label="Aktuella värden">
-    <div class="stat-card" data-stat="wave">
-      <span class="stat-icon">🌊</span>
-      <span class="stat-value" id="statWave">–</span>
-      <span class="stat-label">Våghöjd</span>
+  <section class="stats" id="statGrid" aria-label="Aktuella värden">
+    <div class="stat-duo">
+      <div class="stat-big stat-water">
+        <span class="stat-label">Vattnet</span>
+        <span class="stat-value stat-value-xl" id="statWaterTemp">–</span>
+        <span class="stat-note" id="statWaterNote"></span>
+      </div>
+      <div class="stat-big stat-air">
+        <span class="stat-label">Luften</span>
+        <span class="stat-value stat-value-xl" id="statAirTemp">–</span>
+        <span class="stat-note"><span id="statAirFeels"></span> <span id="statAirMax"></span></span>
+      </div>
     </div>
-    <div class="stat-card" data-stat="water">
-      <span class="stat-icon">💧</span>
-      <span class="stat-value" id="statWaterTemp">–</span>
-      <span class="stat-label">Vattentemp</span>
+    <div class="stat-trio">
+      <div class="stat-card">
+        <span class="stat-icon" data-icon="wave"></span>
+        <span class="stat-value" id="statWave">–</span>
+        <span class="stat-word" id="statWaveWord">Vågor</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" data-icon="wind"></span>
+        <span class="stat-value" id="statWind">–</span>
+        <span class="stat-word" id="statWindWord">Vind</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon" data-icon="uv"></span>
+        <span class="stat-value" id="statUv">–</span>
+        <span class="stat-word" id="statUvWord">UV</span>
+      </div>
     </div>
-    <div class="stat-card" data-stat="air">
-      <span class="stat-icon">☀️</span>
-      <span class="stat-value" id="statAirTemp">–</span>
-      <span class="stat-label">Lufttemp</span>
-      <span class="stat-feels" id="statAirFeels"></span>
-      <span class="stat-feels" id="statAirMax"></span>
+  </section>
+
+  <!-- SOLBÅGE -->
+  <section class="sun-card" id="sunCard" aria-label="Solen idag">
+    <div class="sun-card-top">
+      <p class="sun-countdown" id="sunCountdown">—</p>
+      <p class="sun-sub" id="sunSub"></p>
     </div>
-    <div class="stat-card" data-stat="wind">
-      <span class="stat-icon">💨</span>
-      <span class="stat-value" id="statWind">–</span>
-      <span class="stat-label">Vind</span>
-    </div>
-    <div class="stat-card" data-stat="uv">
-      <span class="stat-icon">🕶️</span>
-      <span class="stat-value" id="statUv">–</span>
-      <span class="stat-label">UV-index</span>
-    </div>
-    <div class="stat-card" data-stat="sun">
-      <span class="stat-icon">🌅</span>
-      <span class="stat-value" id="statSun">–</span>
-      <span class="stat-label">Sol upp/ner</span>
+    <svg class="sun-arc" id="sunArc" viewBox="0 0 320 120" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+      <defs>
+        <linearGradient id="arcFill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--limon)" stop-opacity=".55"/>
+          <stop offset="1" stop-color="var(--limon)" stop-opacity="0"/>
+        </linearGradient>
+        <radialGradient id="sunGlow">
+          <stop offset="0" stop-color="var(--limon)" stop-opacity=".7"/>
+          <stop offset="1" stop-color="var(--limon)" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <path class="arc-track" d="M20 108 Q160 -52 300 108"/>
+      <path class="arc-done" id="arcDone" d=""/>
+      <path class="arc-fill" id="arcFillPath" d="" fill="url(#arcFill)"/>
+      <line class="arc-horizon" x1="6" y1="108" x2="314" y2="108"/>
+      <circle id="sunGlowDot" r="22" fill="url(#sunGlow)" cx="-50" cy="-50"/>
+      <circle class="arc-sun" id="sunDot" r="8" cx="-50" cy="-50"/>
+    </svg>
+    <div class="sun-times">
+      <span><b id="sunriseTime">–</b> upp</span>
+      <span><b id="sunsetTime">–</b> ner</span>
     </div>
   </section>
 
@@ -157,35 +195,35 @@
     <section class="stores" id="storesSection">
       <h2>Närmaste mataffärer</h2>
       <div class="stores-row" id="storesRow"></div>
-      <p class="stores-note">Uträknat lokalt, känner av stora helgdagar (nyår, trettondag, 1 maj, jul). Klicka för att dubbelkolla på kartan.</p>
+      <p class="section-note">Känner av stora helgdagar (nyår, trettondag, 1 maj, jul). Tryck för att dubbelkolla på kartan.</p>
     </section>
 
     <section class="transport" id="trainSection">
-      <h2>Tåg till/från El Pinillo</h2>
-      <div class="train-row">
+      <h2>Tåg från El Pinillo</h2>
+      <div class="train-list">
         <div class="train-card">
-          <div class="train-dir">🚆 Málaga</div>
+          <div class="train-dir">Málaga Centro</div>
           <div class="train-links">
-            <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=M%C3%A1laga-Centro+Alameda&destination_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&travelmode=transit" target="_blank" rel="noopener">Till</a>
-            <a href="https://www.google.com/maps/dir/?api=1&origin=M%C3%A1laga-Centro+Alameda&origin_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Från</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=M%C3%A1laga-Centro+Alameda&destination_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&travelmode=transit" target="_blank" rel="noopener">Dit</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=M%C3%A1laga-Centro+Alameda&origin_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Hem</a>
           </div>
         </div>
         <div class="train-card">
-          <div class="train-dir">🚆 Fuengirola</div>
+          <div class="train-dir">Fuengirola</div>
           <div class="train-links">
-            <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Fuengirola&destination_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&travelmode=transit" target="_blank" rel="noopener">Till</a>
-            <a href="https://www.google.com/maps/dir/?api=1&origin=Fuengirola&origin_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Från</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Fuengirola&destination_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&travelmode=transit" target="_blank" rel="noopener">Dit</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Fuengirola&origin_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Hem</a>
           </div>
         </div>
         <div class="train-card">
-          <div class="train-dir">🚆 Plaza Mayor</div>
+          <div class="train-dir">Plaza Mayor</div>
           <div class="train-links">
-            <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Plaza+Mayor+M%C3%A1laga&travelmode=transit" target="_blank" rel="noopener">Till</a>
-            <a href="https://www.google.com/maps/dir/?api=1&origin=Plaza+Mayor+M%C3%A1laga&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Från</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=El+Pinillo&origin_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&destination=Plaza+Mayor+M%C3%A1laga&travelmode=transit" target="_blank" rel="noopener">Dit</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Plaza+Mayor+M%C3%A1laga&destination=El+Pinillo&destination_place_id=ChIJgVKDUn_8cg0RI8BJi_nGHuA&travelmode=transit" target="_blank" rel="noopener">Hem</a>
           </div>
         </div>
       </div>
-      <p class="stores-note">Öppnar Google Maps med riktiga, aktuella avgångstider.</p>
+      <p class="section-note">Öppnar Google Maps med riktiga, aktuella avgångstider.</p>
     </section>
   </div>
 
@@ -194,83 +232,102 @@
     <section class="stores" id="ehrborgStoresSection">
       <h2>Närmaste mataffärer</h2>
       <div class="stores-row" id="ehrborgStoresRow"></div>
-      <p class="stores-note">Uträknat lokalt, känner av stora helgdagar (nyår, trettondag, 1 maj, jul). Klicka för att dubbelkolla på kartan.</p>
+      <p class="section-note">Känner av stora helgdagar (nyår, trettondag, 1 maj, jul). Tryck för att dubbelkolla på kartan.</p>
     </section>
 
     <section class="transport" id="ehrborgBusSection">
-      <h2>Buss L-5, hållplats C/ Tórtolas–Dalias</h2>
-      <div class="train-row train-row-single">
+      <h2>Buss L-5 från C/ Tórtolas–Dalias</h2>
+      <div class="train-list">
         <div class="train-card">
-          <div class="train-dir">🚌 Mercado de Los Boliches</div>
+          <div class="train-dir">Mercado de Los Boliches</div>
           <div class="train-links">
-            <a href="https://www.google.com/maps/dir/?api=1&origin=Calle+las+T%C3%B3rtolas+14+Fuengirola&destination=Mercado+Virgen+del+Carmen+Los+Boliches+Fuengirola&travelmode=transit" target="_blank" rel="noopener">Till</a>
-            <a href="https://www.google.com/maps/dir/?api=1&origin=Mercado+Virgen+del+Carmen+Los+Boliches+Fuengirola&destination=Calle+las+T%C3%B3rtolas+14+Fuengirola&travelmode=transit" target="_blank" rel="noopener">Från</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Calle+las+T%C3%B3rtolas+14+Fuengirola&destination=Mercado+Virgen+del+Carmen+Los+Boliches+Fuengirola&travelmode=transit" target="_blank" rel="noopener">Dit</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Mercado+Virgen+del+Carmen+Los+Boliches+Fuengirola&destination=Calle+las+T%C3%B3rtolas+14+Fuengirola&travelmode=transit" target="_blank" rel="noopener">Hem</a>
             <a href="https://www.transportefuengirola.com/linea-5" target="_blank" rel="noopener">Tidtabell</a>
           </div>
         </div>
       </div>
-      <p class="stores-note">L-5 går lokalt inom Fuengirola (Torreblanca–Los Boliches), hållplatsen ligger precis utanför huset. Sommar- och vintertider skiljer sig — se länken för aktuell tidtabell.</p>
+      <p class="section-note">L-5 går lokalt inom Fuengirola (Torreblanca–Los Boliches), hållplatsen ligger precis utanför huset. Sommar- och vintertider skiljer sig — se länken för aktuell tidtabell.</p>
     </section>
 
     <section class="transport" id="ehrborgTrainSection">
-      <h2>Tåg från Fuengirola station</h2>
-      <div class="train-row train-row-single">
+      <h2>Tåg från Torreblanca station</h2>
+      <div class="train-list">
         <div class="train-card">
-          <div class="train-dir">🚆 Málaga (via Torremolinos)</div>
+          <div class="train-dir">Málaga Centro</div>
           <div class="train-links">
-            <a href="https://www.google.com/maps/dir/?api=1&origin=Fuengirola&origin_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&destination=M%C3%A1laga-Centro+Alameda&destination_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&travelmode=transit" target="_blank" rel="noopener">Till</a>
-            <a href="https://www.google.com/maps/dir/?api=1&origin=M%C3%A1laga-Centro+Alameda&origin_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&destination=Fuengirola&destination_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&travelmode=transit" target="_blank" rel="noopener">Från</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Calle+las+T%C3%B3rtolas+14+Fuengirola&destination=M%C3%A1laga-Centro+Alameda&destination_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&travelmode=transit" target="_blank" rel="noopener">Dit</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=M%C3%A1laga-Centro+Alameda&origin_place_id=ChIJGzt60pD3cg0RKO8CQsj8L2g&destination=Calle+las+T%C3%B3rtolas+14+Fuengirola&travelmode=transit" target="_blank" rel="noopener">Hem</a>
+          </div>
+        </div>
+        <div class="train-card">
+          <div class="train-dir">Fuengirola</div>
+          <div class="train-links">
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Calle+las+T%C3%B3rtolas+14+Fuengirola&destination=Fuengirola&destination_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&travelmode=transit" target="_blank" rel="noopener">Dit</a>
+            <a href="https://www.google.com/maps/dir/?api=1&origin=Fuengirola&origin_place_id=ChIJq9WzA0Dicg0ReMgLcKY8ZpQ&destination=Calle+las+T%C3%B3rtolas+14+Fuengirola&travelmode=transit" target="_blank" rel="noopener">Hem</a>
           </div>
         </div>
       </div>
-      <p class="stores-note">Fuengirola är sista stationen söderut på samma pendeltågslinje (C1) som går via Torremolinos till Málaga — ett och samma tåg. Öppnar Google Maps med riktiga, aktuella avgångstider. Fuengirola station ligger ~2 km från huset.</p>
+      <p class="section-note">Torreblanca station ligger ca 1 km från huset (12–15 min promenad nedför backen). Pendeltåget C1 går var 20:e minut mot Málaga via Torremolinos, och ett stopp åt andra hållet till Fuengirola. Kartan räknar med promenaden till stationen.</p>
     </section>
   </div>
+
+  <!-- EURO ↔ KRONOR -->
+  <section class="fx" id="fxSection" aria-label="Euro till kronor">
+    <h2>Euro ↔ kronor</h2>
+    <div class="fx-card">
+      <div class="fx-fields">
+        <label class="fx-field">
+          <span class="fx-cur">€</span>
+          <input id="fxEur" type="text" inputmode="decimal" autocomplete="off" value="10" aria-label="Belopp i euro">
+        </label>
+        <span class="fx-eq" aria-hidden="true">=</span>
+        <label class="fx-field">
+          <input id="fxSek" type="text" inputmode="decimal" autocomplete="off" aria-label="Belopp i kronor">
+          <span class="fx-cur">kr</span>
+        </label>
+      </div>
+      <div class="fx-chips" id="fxChips">
+        <button data-eur="1">1 €</button>
+        <button data-eur="5">5 €</button>
+        <button data-eur="20">20 €</button>
+        <button data-eur="50">50 €</button>
+        <button data-eur="100">100 €</button>
+      </div>
+      <p class="fx-rate" id="fxRate">Hämtar dagens kurs …</p>
+    </div>
+  </section>
 
   <!-- VÄSTERÅS -->
   <section class="home-card">
     <div class="home-card-header">
-      <span class="home-icon">🇸🇪</span>
       <h2>Hemma i Västerås</h2>
+      <span class="diff-chip" id="diffChip" hidden></span>
     </div>
-    <div class="home-stats" id="homeStats">
-      <div class="home-stat">
+    <div class="home-now">
+      <span class="home-now-icon" id="homeCond"></span>
+      <div class="home-now-main">
         <span class="stat-value" id="homeTemp">–</span>
-        <span class="stat-label">Lufttemp</span>
-        <span class="stat-feels" id="homeFeels"></span>
-        <span class="stat-feels" id="homeMax"></span>
-      </div>
-      <div class="home-stat">
-        <span class="stat-value" id="homeWind">–</span>
-        <span class="stat-label">Vind</span>
-      </div>
-      <div class="home-stat">
-        <span class="stat-value" id="homeCond">–</span>
-        <span class="stat-label">Väder</span>
+        <span class="home-now-sub"><span id="homeFeels"></span> · <span id="homeMax"></span> · <span id="homeWind"></span></span>
       </div>
     </div>
-    <div class="home-hourly">
+    <div class="home-block">
       <h3>Kommande timmar</h3>
       <div class="hourly-row" id="homeHourlyRow"></div>
     </div>
-    <div class="home-hourly">
-      <h3>Kommande dagar</h3>
-      <div class="forecast-row" id="homeForecastRow"></div>
+    <div class="home-block">
+      <h3>Spanien mot Västerås</h3>
+      <div class="compare" id="compareRows"></div>
     </div>
   </section>
 
 </main>
 
 <footer>
-  <p>Data från <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>. Uppdateras varje gång sidan öppnas.</p>
-  <p class="made-by">Made by David Hefner</p>
+  <p>Väder från <a href="https://open-meteo.com" target="_blank" rel="noopener">Open-Meteo</a>, valuta från <a href="https://frankfurter.dev" target="_blank" rel="noopener">Frankfurter</a> (ECB).</p>
+  <p class="made-by">Made by: David Hefner</p>
 </footer>
 
 <script src="app.js"></script>
 </body>
 </html>
-<!-- refresh 1785856877 -->
-<!-- refresh 1786361634 -->
-<!-- refresh 1786362148 -->
-<!-- refresh 1786362698 -->
-<!-- refresh 1786363395 -->
