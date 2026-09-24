@@ -2,6 +2,18 @@
 
 Alla ändringar i projektet loggas här med datum.
 
+## 2026-09-24 (beta: ny design "Citron & terrakotta")
+- Ny version att testa på `/beta/` — den vanliga appen är orörd. Originalet är sparat med git-taggen `original`
+- Ny mjuk stil med färger från terrassfotot (kalkvitt, citron, taktegel, himmel), typsnitten Fraunces + Nunito och egna väderikoner istället för emojis
+- Ny flagga ritad på canvas: tyget vajar i remsor med ljus och skugga, texten följer med i vecken, vinden styr fart och kraft
+- Hero-fotot slutar i en bågad markis-kant
+- Tema efter tid på dygnet: dag, gyllene timmen (persika) och natt (bläckblått med stjärnor)
+- Solbåge med nedräkning till solnedgång/soluppgång och gyllene timmen
+- Spanien mot Västerås: "X° kallare än här" + staplar för kommande dagar
+- Euro ↔ kronor-räknare med ECB:s dagskurs
+- Dra ner för att uppdatera (en citron rullar ner)
+- Timprognosen visar regnrisk och måne på natten; ordbeskrivningar för vågor, vind, UV och vattentemp
+
 ## 2026-09-20 (vind i m/s)
 - Bytte vindenhet från km/h till m/s (standarden i svenska väderrapporter) — hämtas nu direkt i m/s från Open-Meteo, och flaggans gul/röd-trösklar är omräknade så de slår in vid samma verkliga vindstyrka som innan
 
