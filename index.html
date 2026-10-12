@@ -11,7 +11,12 @@
   // Appen har flyttat från /Bad/ till /spanien/. Behåll resten av adressen
   // (t.ex. ?tema=natt) så att gamla länkar hamnar på samma ställe.
   var rest = location.pathname.replace(/^\/Bad/i, "");
-  location.replace("https://vg1414.github.io/spanien" + rest + location.search + location.hash);
+  // Körs sidan som installerad app (den gamla ikonen på hemskärmen)? Då får
+  // nya appen veta det och visar en uppmaning att byta till nya ikonen.
+  var search = location.search;
+  var installed = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  if (installed) search += (search ? "&" : "?") + "gammal-app=1";
+  location.replace("https://vg1414.github.io/spanien" + rest + search + location.hash);
 </script>
 <style>
   body{margin:0;min-height:100vh;display:grid;place-items:center;background:#FFF8EC;color:#3A2A1E;font-family:system-ui,sans-serif;text-align:center;padding:16px;}
